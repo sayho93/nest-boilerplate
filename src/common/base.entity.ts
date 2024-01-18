@@ -1,4 +1,4 @@
-import type { User } from 'src/users/entities/user.entity';
+import type { User } from 'src/modules/users/entities/user.entity';
 import {
   CreateDateColumn,
   DeleteDateColumn,
@@ -10,7 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-export abstract class BaseEntity {
+export class BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -23,9 +23,11 @@ export abstract class BaseEntity {
 
   @DeleteDateColumn({ nullable: true, select: true })
   deletedAt: Date | null;
+
+  protected constructor() {}
 }
 
-export abstract class BaseActorEntity extends BaseEntity {
+export class BaseActorEntity extends BaseEntity {
   @ManyToOne('User', 'id')
   @JoinColumn()
   createdBy: Relation<User>;
@@ -38,4 +40,8 @@ export abstract class BaseActorEntity extends BaseEntity {
   @ManyToOne('User', 'id')
   @JoinColumn()
   deletedBy: Relation<User>;
+
+  protected constructor() {
+    super();
+  }
 }

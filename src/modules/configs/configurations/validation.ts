@@ -1,10 +1,7 @@
 import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
 
-export function validateConfig<T>(
-  instanceType: ClassConstructor<T>,
-  configObject: object,
-): T {
+export function validateConfig<T>(instanceType: ClassConstructor<T>, configObject: object): T {
   const configInstance = plainToInstance(instanceType, configObject, {
     enableImplicitConversion: true,
   });

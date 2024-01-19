@@ -27,9 +27,7 @@ class Main {
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
     // app.useWebSocketAdapter(new RedisIoAdapter(app));
-    app.useGlobalInterceptors(
-      new ClassSerializerInterceptor(app.get(Reflector)),
-    );
+    app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
     app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
 
     await app.listen(appConfig.port);

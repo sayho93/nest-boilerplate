@@ -1,9 +1,4 @@
-import {
-  CallHandler,
-  ExecutionContext,
-  Injectable,
-  NestInterceptor,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { v4 } from 'uuid';
 import { ClsService } from '../modules/cls/cls.service';
@@ -26,10 +21,7 @@ export class RequestIdInterceptor implements NestInterceptor {
         return next.handle();
       }
     } catch (err) {
-      this.loggerService.error(
-        `${RequestIdInterceptor.name}.${this.intercept.name}`,
-        err,
-      );
+      this.loggerService.error(`${RequestIdInterceptor.name}.${this.intercept.name}`, err);
       return next.handle();
     }
 

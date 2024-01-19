@@ -1,9 +1,4 @@
-import {
-  CallHandler,
-  ExecutionContext,
-  Injectable,
-  NestInterceptor,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { Observable, tap } from 'rxjs';
 import { Env } from '../modules/configs/configs.interface';
@@ -51,11 +46,7 @@ export class RequestLogInterceptor implements NestInterceptor {
       try {
         body = JSON.stringify(req.body);
       } catch {
-        this.loggerService.warn(
-          this.intercept.name,
-          req.body,
-          'failed stringify request body',
-        );
+        this.loggerService.warn(this.intercept.name, req.body, 'failed stringify request body');
       }
 
       // API Request Logging

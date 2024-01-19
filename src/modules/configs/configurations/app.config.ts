@@ -1,12 +1,27 @@
-import { App, Env } from '../configs.interface';
-import * as process from 'node:process';
 import { registerAs } from '@nestjs/config';
+import { IsEnum, IsNumber, IsString } from 'class-validator';
+import { validateConfig } from './validation';
+import { App as IApp, Env } from '../configs.interface';
 
-export const AppConfig = registerAs(
-  'App',
-  (): App => ({
-    env: process.env.NODE_ENV as Env,
+export class App implements IApp {
+  @IsEnum(Env)
+  env: Env;
+
+  @IsNumber()
+  port: number;
+
+  @IsString()
+  serviceName: string;
+}
+
+export const AppConfig = registerAs(App.name, () => {
+  const config = {
+    env: process.env.NODE_ENV,
     serviceName: process.env.SERVICE_NAME,
-    port: parseInt(process.env.DB_PORT),
-  }),
-);
+    port: process.env.DB_PORT,
+  };
+
+  console.log(config);
+
+  return validateConfig(App, config);
+});

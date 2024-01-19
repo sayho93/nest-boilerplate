@@ -1,0 +1,13 @@
+{
+    "configurations": [
+        {
+            "type": "command",
+            "name": "run",
+            "workingDir": "$PROJECT_DIR$/",
+            "program": "pnpm",
+            "args": [
+                "start:dev"
+            ],
+        }, 
+    ]
+}

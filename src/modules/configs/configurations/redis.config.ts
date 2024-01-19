@@ -1,11 +1,25 @@
 import { registerAs } from '@nestjs/config';
-import { Redis } from '../configs.interface';
+import { IsNumber, IsString } from 'class-validator';
+import { validateConfig } from './validation';
+import { Redis as IRedis } from '../configs.interface';
 
-export const RedisConfig = registerAs(
-  'Redis',
-  (): Redis => ({
+export class Redis implements IRedis {
+  @IsString()
+  host: string;
+
+  @IsNumber()
+  port: number;
+
+  @IsString()
+  password: string;
+}
+
+export const RedisConfig = registerAs(Redis.name, () => {
+  const config = {
     host: process.env.REDIS_HOST,
-    port: parseInt(process.env.REDIS_PORT),
+    port: process.env.REDIS_PORT,
     password: process.env.REDIS_PASSWORD,
-  }),
-);
+  };
+
+  return validateConfig(Redis, config);
+});

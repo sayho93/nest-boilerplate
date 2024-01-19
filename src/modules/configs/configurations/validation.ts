@@ -1,81 +1,20 @@
-import { Env } from '../configs.interface';
-import { IsEnum, IsNumber, IsString, validateSync } from 'class-validator';
-import { plainToInstance } from 'class-transformer';
+import { ClassConstructor, plainToInstance } from 'class-transformer';
+import { validateSync } from 'class-validator';
 
-class EnvironmentVariables {
-  /**
-   * App
-   */
-  @IsEnum(Env)
-  NODE_ENV: Env;
-
-  @IsString()
-  SERVICE_NAME: string;
-
-  @IsNumber()
-  PORT: number;
-
-  /**
-   * REDIS
-   */
-  @IsString()
-  REDIS_HOST: string;
-
-  @IsNumber()
-  REDIS_PORT: number;
-
-  @IsString()
-  REDIS_PASSWORD: string;
-
-  /**
-   * MariaDB
-   */
-  @IsString()
-  DB_HOST: string;
-
-  @IsString()
-  DB_USERNAME: string;
-
-  @IsString()
-  DB_PASSWORD: string;
-
-  @IsString()
-  DB_DATABASE: string;
-
-  @IsNumber()
-  DB_PORT: number;
-
-  /**
-   * Mail
-   */
-  @IsString()
-  MAIL_SERVICE: string;
-
-  @IsString()
-  MAIL_HOST: string;
-
-  @IsNumber()
-  MAIL_PORT: number;
-
-  @IsString()
-  MAIL_USER: string;
-
-  @IsString()
-  MAIL_PASSWORD: string;
-}
-
-export function validate(config: Record<string, unknown>) {
-  const validatedConfig = plainToInstance(EnvironmentVariables, config, {
+export function validateConfig<T>(
+  instanceType: ClassConstructor<T>,
+  configObject: object,
+): T {
+  const configInstance = plainToInstance(instanceType, configObject, {
     enableImplicitConversion: true,
   });
 
-  const errors = validateSync(validatedConfig, {
+  const errors = validateSync(configInstance as object, {
     skipMissingProperties: false,
   });
-
-  if (errors.length > 0) {
+  if (errors.length) {
     throw new Error(errors.toString());
   }
 
-  return validatedConfig;
+  return configInstance;
 }

@@ -5,11 +5,11 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint/eslint-plugin', 'import', 'prettier'],
+  plugins: ['@typescript-eslint/eslint-plugin', 'import', 'prettier', "unused-imports"],
   extends: [
-    'plugin:@typescript-eslint/recommended',
     'prettier',
     'plugin:prettier/recommended',
+    'plugin:@typescript-eslint/recommended',
     'plugin:import/recommended',
     'plugin:import/typescript',
   ],
@@ -48,14 +48,26 @@ module.exports = {
       },
     ],
     '@typescript-eslint/prefer-namespace-keyword': 'off',
-  },
-  'import/order': [
-    'error',
-    {
-      groups: ['builtin', 'external', 'internal'],
-      alphabetize: {
-        order: 'asc',
+    '@typescript-eslint/no-namespace': 'off',
+    'import/order': [
+      'error',
+      {
+        groups: ['builtin', 'external', 'internal'],
+        alphabetize: {
+          order: 'asc',
+        },
       },
-    },
-  ],
+    ],
+    'import/no-unresolved': 0,
+    'unused-imports/no-unused-imports': 'error',
+    'unused-imports/no-unused-vars': [
+      'warn',
+      {
+        vars: 'all',
+        varsIgnorePattern: '^_',
+        args: 'after-used',
+        argsIgnorePattern: '^_'
+      },
+    ],
+  },
 };

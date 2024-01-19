@@ -8,7 +8,7 @@ import { Redis } from './configurations/redis.config';
 
 @Injectable()
 export class ConfigsService {
-  constructor(private readonly configService: ConfigService<Configs>) {}
+  public constructor(private readonly configService: ConfigService<Configs>) {}
 
   public findAll() {
     return {

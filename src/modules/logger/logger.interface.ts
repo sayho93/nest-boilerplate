@@ -1,7 +1,7 @@
 export interface Log {
   data?: object;
   stack?: string;
-  traceId?: string;
+  requestId?: string;
   message?: string;
   logId?: string;
 }

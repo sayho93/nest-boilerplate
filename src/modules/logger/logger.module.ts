@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { utilities, WinstonModule } from 'nest-winston';
 import winston from 'winston';
 import { LoggerService } from './logger.service';
@@ -6,6 +6,7 @@ import { Env } from '../configs/configs.interface';
 import { ConfigsModule } from '../configs/configs.module';
 import { ConfigsService } from '../configs/configs.service';
 
+@Global()
 @Module({
   imports: [
     ConfigsModule,

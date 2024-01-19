@@ -18,7 +18,7 @@ export const AppConfig = registerAs(App.name, () => {
   const config = {
     env: process.env.NODE_ENV,
     serviceName: process.env.SERVICE_NAME,
-    port: process.env.DB_PORT,
+    port: process.env.PORT,
   };
 
   return validateConfig(App, config);

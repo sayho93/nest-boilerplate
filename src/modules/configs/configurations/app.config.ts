@@ -21,7 +21,5 @@ export const AppConfig = registerAs(App.name, () => {
     port: process.env.DB_PORT,
   };
 
-  console.log(config);
-
   return validateConfig(App, config);
 });

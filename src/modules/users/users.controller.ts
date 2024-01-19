@@ -17,12 +17,7 @@ export class UsersController {
   constructor(
     private readonly usersService: UsersService,
     private readonly configsService: ConfigsService,
-  ) {
-    console.log(this.configsService.App);
-    console.log(this.configsService.MariaDB);
-    console.log(this.configsService.Redis);
-    console.log(this.configsService.Mail);
-  }
+  ) {}
 
   @Post()
   create(@Body() createUserDto: CreateUserDto) {

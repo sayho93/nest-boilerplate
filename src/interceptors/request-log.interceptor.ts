@@ -22,12 +22,12 @@ interface ResponseLog {
 
 @Injectable()
 export class RequestLogInterceptor implements NestInterceptor {
-  constructor(
+  public constructor(
     private readonly loggerService: LoggerService,
     private readonly configService: ConfigsService,
   ) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  public intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     const isDevelopment = this.configService.App.env === Env.Development;
 
     let request: RequestLog;
@@ -36,7 +36,6 @@ export class RequestLogInterceptor implements NestInterceptor {
     if (context.getType() === 'http') {
       const httpContext = context.switchToHttp();
       const req: Request = httpContext.getRequest();
-
       req['startTime'] = Date.now();
 
       // const userId = req.session?.credentials?.user?._id;
@@ -64,11 +63,7 @@ export class RequestLogInterceptor implements NestInterceptor {
             body,
           };
 
-      this.loggerService.info(
-        this.intercept.name,
-        { request },
-        `[REQUEST] [METHOD]: ${request.method}, [URL]: ${request.url}`,
-      );
+      this.loggerService.info(this.intercept.name, { request }, `REQUEST [${request.method}]${request.url}`);
     }
 
     return next.handle().pipe(
@@ -95,7 +90,7 @@ export class RequestLogInterceptor implements NestInterceptor {
           this.loggerService.info(
             this.intercept.name,
             { request, response },
-            `[RESPONSE] [METHOD]: ${request.method}, [URL]: ${request.url}, [STATUS]: ${res.statusCode}, [TIME]: ${responseTime}ms`,
+            `RESPONSE [${request.method}]${request.url}`,
           );
         }
       }),

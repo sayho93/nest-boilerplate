@@ -6,12 +6,12 @@ import { LoggerService } from '../modules/logger/logger.service';
 
 @Injectable()
 export class RequestIdInterceptor implements NestInterceptor {
-  constructor(
+  public constructor(
     private readonly clsService: ClsService,
     private readonly loggerService: LoggerService,
   ) {}
 
-  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  public intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     try {
       if (context.getType() === 'http') {
         const request = context.switchToHttp().getRequest();

@@ -1,13 +1,13 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor } from '@nestjs/common';
 import { Observable } from 'rxjs';
 import { v4 } from 'uuid';
-import { ClsService } from '../modules/cls/cls.service';
+import { AlsService } from '../modules/als/als.service';
 import { LoggerService } from '../modules/logger/logger.service';
 
 @Injectable()
 export class RequestIdInterceptor implements NestInterceptor {
   public constructor(
-    private readonly clsService: ClsService,
+    private readonly clsService: AlsService,
     private readonly loggerService: LoggerService,
   ) {}
 
@@ -16,7 +16,8 @@ export class RequestIdInterceptor implements NestInterceptor {
       if (context.getType() === 'http') {
         const request = context.switchToHttp().getRequest();
         const requestId = request.headers['x-request-id'] || v4();
-        this.clsService.set('requestId', requestId);
+
+        this.clsService.requestId = requestId;
         request.requestId = requestId;
         return next.handle();
       }

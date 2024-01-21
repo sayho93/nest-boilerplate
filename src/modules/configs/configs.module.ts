@@ -11,7 +11,7 @@ import { RedisConfig } from './configurations/redis.config';
   imports: [
     ConfigModule.forRoot({
       cache: true,
-      envFilePath: [`.env.${process.env.NODE_ENV}`, '.env.development'],
+      envFilePath: [`.env/.env.${process.env.NODE_ENV}`, '.env/.env.development'],
       load: [AppConfig, MariaDBConfig, RedisConfig, MailConfig],
     }),
   ],

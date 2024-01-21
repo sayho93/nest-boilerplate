@@ -18,10 +18,10 @@ export class UsersEntity extends BaseEntity {
   @Column({ name: 'password', type: 'varchar', length: 256, comment: '비밀번호' })
   password: string;
 
-  @Column({ name: 'name', type: 'varchar', length: 24, comment: '이름' })
+  @Column({ name: 'name', type: 'varchar', length: 40, comment: '이름' })
   public name: string;
 
-  @Column({ name: 'alias', type: 'varchar', length: 24, comment: '별칭' })
+  @Column({ name: 'alias', type: 'varchar', length: 40, comment: '별칭' })
   public alias: string;
 
   @Column({ type: 'enum', enum: UserRole, default: UserRole.GUEST, comment: '권한' })

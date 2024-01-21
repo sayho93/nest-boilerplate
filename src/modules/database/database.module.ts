@@ -8,7 +8,7 @@ import { isValueDefined } from '../../common/utils/validation';
 import { AlsService } from '../als/als.service';
 import { Env } from '../configs/configs.interface';
 import { ConfigsService } from '../configs/configs.service';
-import { UsersEntity } from '../users/entities/usersEntity';
+import { UsersEntity } from '../users/entities/users.entity';
 
 @Module({
   imports: [

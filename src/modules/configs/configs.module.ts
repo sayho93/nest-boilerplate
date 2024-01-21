@@ -18,4 +18,8 @@ import { RedisConfig } from './configurations/redis.config';
   providers: [ConfigsService],
   exports: [ConfigsService],
 })
-export class ConfigsModule {}
+export class ConfigsModule {
+  get configService() {
+    return Reflect.getMetadata('providers', this);
+  }
+}

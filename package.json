@@ -27,11 +27,10 @@
     "typeorm:show": "pnpm typeorm migration:show",
     "typeorm:up": "pnpm typeorm migration:run",
     "typeorm:down": "pnpm typeorm migration:revert",
-    "typeorm-ext": "ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs",
-    "seed:db:create": "pnpm typeorm-ext db:create  -d typeorm.config.ts",
-    "seed:db:drop": "pnpm typeorm-ext db:drop  -d typeorm.config.ts",
-    "seed:create": "pnpm typeorm-ext seed:create --n",
-    "seed:run": "pnpm typeorm-ext seed:run -d typeorm.config"
+    "typeorm-ext": "ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs -d typeorm.config.ts",
+    "db:up": "pnpm typeorm-ext db:create",
+    "db:down": "pnpm typeorm-ext db:drop",
+    "seed:run": "pnpm typeorm-ext seed:run"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.1",

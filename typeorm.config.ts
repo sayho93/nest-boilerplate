@@ -22,7 +22,6 @@ const options: DataSourceOptions & SeederOptions = {
   seedTracking: false,
   factories: ['migrations/factories/**/*.ts'],
 };
-
 console.log(options);
 
 export const dataSource = new DataSource(options);

@@ -20,13 +20,13 @@ export default class UserSeeder implements Seeder {
     user.password = await createHash('test');
     user.role = UserRole.ADMIN;
     user.phone = '01029484648';
+    console.log(user);
 
-    console.log(user, ':::::');
     await repository.insert([user]);
 
     // ---------------------------------------------------
 
-    const userFactory = await factoryManager.get(UsersEntity);
+    const userFactory = factoryManager.get(UsersEntity);
     // save 1 factory generated entity, to the database
     await userFactory.save();
 

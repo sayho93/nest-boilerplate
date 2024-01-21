@@ -1,5 +1,5 @@
-import { ClassSerializerInterceptor, ValidationPipe, VersioningType } from '@nestjs/common';
-import { NestFactory, Reflector } from '@nestjs/core';
+import { ValidationPipe, VersioningType } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import helmet from 'helmet';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
@@ -23,14 +23,10 @@ class Main {
     app.set('trust proxy', true);
     app.use(helmet());
     app.enableCors();
-
     app.setGlobalPrefix('api');
     app.enableVersioning({ type: VersioningType.URI });
-
     app.useGlobalPipes(new ValidationPipe({ transform: true }));
-
     // app.useWebSocketAdapter(new RedisIoAdapter(app));
-    app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
     app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
 
     await app.listen(appConfig.port);

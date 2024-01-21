@@ -22,9 +22,8 @@ export abstract class BaseRepository<T extends BaseEntity> extends FundamentalRe
   }
 
   protected get repository(): Repository<T> {
-    if (this.txManager) {
-      return this.txManager.getRepository(this.classType);
-    }
+    if (this.txManager) return this.txManager.getRepository(this.classType);
+
     return this.dataSource.getRepository(this.classType);
   }
 
@@ -84,7 +83,7 @@ export abstract class BaseRepository<T extends BaseEntity> extends FundamentalRe
     }
     this.loggerService.info(this.updateOne.name, updateResult);
 
-    //! raw is empty [https://github.com/typeorm/typeorm/issues/2415]
+    //! UpdateResult.raw is empty [https://github.com/typeorm/typeorm/issues/2415]
     // return plainToInstance(this.classType, updateResult.raw[0]);
     return this.findOneById(id);
   }

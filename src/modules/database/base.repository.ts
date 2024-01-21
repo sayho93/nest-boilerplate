@@ -17,10 +17,7 @@ export abstract class FundamentalRepository<T extends BaseEntity> {
 }
 
 export abstract class BaseRepository<T extends BaseEntity> extends FundamentalRepository<T> {
-  protected constructor(
-    protected readonly dataSource: DataSource,
-    protected readonly classType: ClassConstructor<T>,
-  ) {
+  protected constructor(protected readonly classType: ClassConstructor<T>) {
     super();
   }
 

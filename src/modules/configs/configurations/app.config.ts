@@ -14,7 +14,7 @@ export class App implements IApp {
   serviceName: string;
 }
 
-export const AppConfig = registerAs(App.name, () => {
+export const AppConfig = registerAs(App.name, (): InstanceType<typeof App> => {
   const config = {
     env: process.env.NODE_ENV,
     serviceName: process.env.SERVICE_NAME,

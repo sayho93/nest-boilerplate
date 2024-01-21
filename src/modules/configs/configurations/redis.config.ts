@@ -14,7 +14,7 @@ export class Redis implements IRedis {
   password: string;
 }
 
-export const RedisConfig = registerAs(Redis.name, () => {
+export const RedisConfig = registerAs(Redis.name, (): InstanceType<typeof Redis> => {
   const config = {
     host: process.env.REDIS_HOST,
     port: process.env.REDIS_PORT,

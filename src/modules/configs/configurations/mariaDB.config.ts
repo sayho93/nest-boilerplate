@@ -20,7 +20,7 @@ export class MariaDB implements IMariaDB {
   database: string;
 }
 
-export const MariaDBConfig = registerAs(MariaDB.name, () => {
+export const MariaDBConfig = registerAs(MariaDB.name, (): InstanceType<typeof MariaDB> => {
   const config = {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,

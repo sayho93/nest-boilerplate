@@ -18,9 +18,11 @@ export class Mail implements IMail {
 
   @IsString()
   password: string;
+
+  constructor() {}
 }
 
-export const MailConfig = registerAs(Mail.name, () => {
+export const MailConfig = registerAs(Mail.name, (): InstanceType<typeof Mail> => {
   const config = {
     service: process.env.MAIL_SERVICE,
     host: process.env.MAIL_HOST,

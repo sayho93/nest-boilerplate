@@ -9,10 +9,10 @@ import { LoggerService } from '../logger/logger.service';
 @Injectable()
 export class UsersRepository extends BaseRepository<UsersEntity> {
   public constructor(
-    dataSource: DataSource,
+    protected readonly dataSource: DataSource,
     protected readonly loggerService: LoggerService,
   ) {
-    super(dataSource, UsersEntity);
+    super(UsersEntity);
   }
 
   public async findMany(findUserDto: FindUsersDto) {

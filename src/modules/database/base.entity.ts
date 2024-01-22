@@ -1,4 +1,4 @@
-import type { UsersEntity } from 'src/modules/users/entities/usersEntity';
+import type { UsersEntity } from 'src/modules/users/entities/users.entity';
 import {
   CreateDateColumn,
   DeleteDateColumn,

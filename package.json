@@ -17,16 +17,20 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json --forceExit --logHeapUsage --no-compilation-cache",
-    "env:up": "oci os object put -bn environments --file .env/.env.development --name nest-boilerplate/.env.development --no-multipart && oci os object put -bn environments --file .env/.env.production --name nest-boilerplate/.env.production --no-multipart",
-    "env:down": "oci os object get -bn environments --file .env/.env.development --name nest-boilerplate/.env.development && oci os object get -bn environments --file .env/.env.production --name nest-boilerplate/.env.production",
+    "env:up": "oci os object put -bn environments --file .env/.env.test --name nest-boilerplate/.env.test --no-multipart && oci os object put -bn environments --file .env/.env.development --name nest-boilerplate/.env.development --no-multipart && oci os object put -bn environments --file .env/.env.production --name nest-boilerplate/.env.production --no-multipart",
+    "env:down": "oci os object get -bn environments --file .env/.env.test --name nest-boilerplate/.env.test && oci os object get -bn environments --file .env/.env.development --name nest-boilerplate/.env.development && oci os object get -bn environments --file .env/.env.production --name nest-boilerplate/.env.production",
     "docker-compose:up": "docker-compose -f docker-compose.yml up --build -d",
     "docker-compose:down": "docker-compose -f docker-compose.yml down --volumes",
-    "typeorm":  "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -d=typeorm.config.ts",
+    "typeorm": "NODE_ENV=test && ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -d=typeorm.config.ts",
     "typeorm:create": "pnpm typeorm migration:create",
     "typeorm:generate": "pnpm typeorm migration:generate",
     "typeorm:show": "pnpm typeorm migration:show",
     "typeorm:up": "pnpm typeorm migration:run",
-    "typeorm:down": "pnpm typeorm migration:revert"
+    "typeorm:down": "pnpm typeorm migration:revert",
+    "typeorm-ext": "ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs -d typeorm.config.ts",
+    "db:up": "pnpm typeorm-ext db:create",
+    "db:down": "pnpm typeorm-ext db:drop",
+    "seed:run": "pnpm typeorm-ext seed:run"
   },
   "dependencies": {
     "@nestjs/axios": "^3.0.1",
@@ -69,6 +73,7 @@
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
+    "dotenv": "^16.3.2",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.29.1",
@@ -82,10 +87,15 @@
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "typeorm-extension": "^3.4.0",
     "typescript": "^5.3.3"
   },
   "jest": {
-    "moduleFileExtensions": ["js", "json", "ts"],
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
     "rootDir": "src",
     "testRegex": ".*\\.spec\\.ts$",
     "transform": {
@@ -102,7 +112,9 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
-    "modulePaths": ["<rootDir>/../"],
+    "modulePaths": [
+      "<rootDir>/../"
+    ],
     "moduleNameMapper": {
       "^src/(.*)$": "<rootDir>/$1"
     }

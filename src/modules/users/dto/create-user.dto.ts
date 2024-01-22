@@ -1,7 +1,7 @@
 import { IsEnum, IsNumberString, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
 import { EmailRegexp, PasswordRegexp } from '../../../common/constants/regexp.constant';
 import { BaseEntity } from '../../database/base.entity';
-import { UserRole, UsersEntity } from '../entities/usersEntity';
+import { UserRole, UsersEntity } from '../entities/users.entity';
 
 export class CreateUserDto implements Omit<UsersEntity, keyof BaseEntity> {
   @IsString()

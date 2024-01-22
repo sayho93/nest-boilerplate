@@ -2,17 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, Like } from 'typeorm';
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions';
 import { FindUsersDto } from './dto/find-users.dto';
-import { UsersEntity } from './entities/usersEntity';
+import { UsersEntity } from './entities/users.entity';
 import { BaseRepository } from '../database/base.repository';
 import { LoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class UsersRepository extends BaseRepository<UsersEntity> {
   public constructor(
-    dataSource: DataSource,
+    protected readonly dataSource: DataSource,
     protected readonly loggerService: LoggerService,
   ) {
-    super(dataSource, UsersEntity);
+    super(UsersEntity);
   }
 
   public async findMany(findUserDto: FindUsersDto) {

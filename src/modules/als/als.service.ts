@@ -1,18 +1,17 @@
 import { AsyncLocalStorage } from 'async_hooks';
 import { Injectable } from '@nestjs/common';
-import { QueryRunner } from 'typeorm';
 import { AlsStorage } from './als.interface';
 
 @Injectable()
 export class AlsService {
   public constructor(private readonly asyncLocalStorage: AsyncLocalStorage<AlsStorage>) {}
 
-  public run<T>(store: AlsStorage, callback: () => T) {
-    return this.asyncLocalStorage.run(store, callback);
+  public get store() {
+    return this.asyncLocalStorage.getStore();
   }
 
-  private get store() {
-    return this.asyncLocalStorage.getStore();
+  public run<T>(store: AlsStorage, callback: () => T) {
+    return this.asyncLocalStorage.run(store, callback);
   }
 
   public get requestId(): AlsStorage['requestId'] {
@@ -23,11 +22,11 @@ export class AlsService {
     if (this.store) this.store.requestId = requestId;
   }
 
-  public get queryRunner(): AlsStorage['queryRunner'] {
-    return this.store?.queryRunner;
+  public get entityManager(): AlsStorage['entityManager'] {
+    return this.store?.entityManager;
   }
 
-  public set queryRunner(queryRunner: QueryRunner) {
-    if (this.store) this.store.queryRunner = queryRunner;
+  public set entityManager(entityManager: AlsStorage['entityManager']) {
+    if (this.store) this.store.entityManager = entityManager;
   }
 }

@@ -4,6 +4,7 @@ import { AlsModule } from './als/als.module';
 import { AppController } from './app.controller';
 import { ConfigsModule } from './configs/configs.module';
 import { DatabaseModule } from './database/database.module';
+import { EventsModule } from './events/events.module';
 import { LoggerModule } from './logger/logger.module';
 import { UsersModule } from './users/users.module';
 import { GlobalExceptionsFilter } from '../filters/global-exceptions.filter';
@@ -12,7 +13,7 @@ import { RequestLogInterceptor } from '../interceptors/request-log.interceptor';
 import { AsyncLocalStorageMiddleware } from '../middlewares/async-local-storage.middleware';
 
 @Module({
-  imports: [ConfigsModule, AlsModule, LoggerModule, DatabaseModule, UsersModule],
+  imports: [ConfigsModule, AlsModule, LoggerModule, DatabaseModule, EventsModule, UsersModule],
   controllers: [AppController],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: RequestIdInterceptor },

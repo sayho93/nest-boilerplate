@@ -1,13 +1,16 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { DiscoveryModule, DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { DataSource, EntityManager } from 'typeorm';
 import { BaseRepository } from './base.repository';
-import { TRANSACTIONAL_KEY } from '../../common/constants/database.constant';
-import { isValueDefined } from '../../common/utils/validation';
+import { Propagation, TransactionalOptions } from './database.interface';
+import { TRANSACTIONAL_KEY, TRANSACTIONAL_OPTION } from '../../common/constants/database.constant';
+import { TransactionalException } from '../../common/exceptions/transactional.exception';
 import { AlsService } from '../als/als.service';
 import { Env } from '../configs/configs.interface';
 import { ConfigsService } from '../configs/configs.service';
+import { LoggerService } from '../logger/logger.service';
 import { UsersEntity } from '../users/entities/users.entity';
 
 @Module({
@@ -33,6 +36,35 @@ import { UsersEntity } from '../users/entities/users.entity';
           entities: [UsersEntity],
         };
       },
+      // async dataSourceFactory(options?: DataSourceOptions) {
+      //   if (!options) {
+      //     throw new Error('Invalid options');
+      //   }
+      //   //
+      //   // const dataSource = new DataSource(options);
+      //   //
+      //   // if (isDataSource(dataSource)) {
+      //   //   input = { name: 'default', dataSource: input, patch: true };
+      //   // }
+      //   //
+      //   // const { name = 'default', dataSource, patch = true } = input;
+      //   // if (dataSources.has(name)) {
+      //   //   throw new Error(`DataSource with name "${name}" has already added.`);
+      //   // }
+      //   //
+      //   // if (patch) {
+      //   //   patchDataSource(dataSource);
+      //   // }
+      //   //
+      //   // dataSources.set(name, dataSource);
+      //   // // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      //   // // @ts-ignore
+      //   // dataSource[TYPEORM_DATA_SOURCE_NAME] = name;
+      //   //
+      //   // return input.dataSource;
+      //   //
+      //   // return;
+      // },
     }),
   ],
 })
@@ -43,6 +75,8 @@ export class DatabaseModule implements OnModuleInit {
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
     private readonly dataSource: DataSource,
+    private eventEmitter: EventEmitter2,
+    private readonly loggerService: LoggerService,
   ) {}
 
   public onModuleInit() {
@@ -50,29 +84,110 @@ export class DatabaseModule implements OnModuleInit {
     this.wrapRepositories();
   }
 
-  private wrapMethod(originalMethod: any, instance: any) {
-    const { alsService, dataSource } = this;
+  private async runInNewHookContext(alsService: AlsService, cb: () => Promise<unknown>) {
+    try {
+      console.log('................................................................');
+      const result = await cb();
+
+      // alsService.entityManager?.queryRunner?.commitTransaction();
+      // alsService.entityManager?.release();
+      // setImmediate(() => {
+      //   eventEmitter.emit('test.commit');
+      //   eventEmitter.emit('test.release', undefined);
+      // });
+
+      return result;
+    } catch (err) {
+      // alsService.entityManager?.queryRunner?.rollbackTransaction();
+      // alsService.entityManager?.release();
+      // eventEmitter.emit('test.rollback');
+      // eventEmitter.emit('test.release', undefined);
+      throw err;
+    }
+
+    // return await alsService.run({ ...alsService.store, entityManager: alsService.entityManager }, async () => {});
+  }
+
+  private wrapMethod(originalMethod: any, instance: any, options?: TransactionalOptions) {
+    const { alsService, dataSource, runInNewHookContext, eventEmitter, loggerService } = this;
 
     return async function (...args: any[]) {
-      const storedQueryRunner = alsService.queryRunner;
-      if (isValueDefined(storedQueryRunner)) return await originalMethod.apply(instance, args);
+      const storedEntityManager = alsService.entityManager;
+      const propagation = options?.propagation ?? Propagation.REQUIRED;
 
-      const queryRunner = dataSource.createQueryRunner();
-      await queryRunner.startTransaction();
+      const runOriginal = async () => originalMethod.apply(this, args);
 
-      return await alsService.run({ queryRunner }, async () => {
+      const transactionCallback = async (entityManager: EntityManager) => {
+        alsService.entityManager = entityManager;
         try {
-          const result = await originalMethod.apply(instance, args);
-          await queryRunner.commitTransaction(); // originalMethod 정상적으로 완료되면 커밋
-
-          return result;
-        } catch (error) {
-          await queryRunner.rollbackTransaction(); // originalMethod 수행 중에 에러가 발생 시 롤백
-          throw error;
+          return await runOriginal();
         } finally {
-          await queryRunner.release();
+          // alsService.entityManager = undefined;
         }
-      });
+      };
+
+      const runWithNewTransaction = async () => {
+        loggerService.info(runWithNewTransaction.name, 'run with new transaction ----------');
+        return await runInNewHookContext(alsService, async () => {
+          if (!alsService.entityManager) {
+            console.log('::::No entity Manager');
+            return dataSource.transaction(transactionCallback);
+          }
+
+          console.log('::::entity Manager exists');
+          return alsService.entityManager.transaction(transactionCallback);
+        });
+      };
+
+      const runWithoutTransaction = async () => {
+        return await runInNewHookContext(alsService, async () => {
+          loggerService.info(runWithNewTransaction.name, 'run without ----------');
+          const currentTransaction = alsService.entityManager;
+          alsService.entityManager = undefined;
+          const originalMethodResult = await runOriginal();
+          alsService.entityManager = currentTransaction;
+
+          return originalMethodResult;
+        });
+      };
+
+      switch (propagation) {
+        case Propagation.MANDATORY:
+          if (!storedEntityManager) {
+            throw new TransactionalException('No existing transaction found');
+          }
+
+          return await runOriginal();
+
+        case Propagation.NESTED:
+          return await runWithNewTransaction();
+
+        case Propagation.NEVER:
+          if (storedEntityManager) {
+            throw new TransactionalException('Found existing transaction');
+          }
+          return await runWithoutTransaction();
+
+        case Propagation.NOT_SUPPORTED:
+          if (storedEntityManager) {
+            return await runWithoutTransaction();
+          }
+
+          return await runOriginal();
+
+        case Propagation.REQUIRED:
+          if (storedEntityManager) return await runOriginal();
+          return await runWithNewTransaction();
+
+        case Propagation.REQUIRES_NEW:
+          return runWithNewTransaction();
+
+        case Propagation.SUPPORTS:
+        //TODO
+
+        default:
+          throw new Error('propagation option is unreachable');
+      }
     };
   }
 
@@ -87,10 +202,15 @@ export class DatabaseModule implements OnModuleInit {
 
       for (const name of names) {
         const originalMethod = instance.instance[name];
-        const isTransactional = this.reflector.get(TRANSACTIONAL_KEY, originalMethod);
+        const isTransactional = this.reflector.get<boolean | undefined>(TRANSACTIONAL_KEY, originalMethod);
         if (!isTransactional) continue;
 
-        instance.instance[name] = this.wrapMethod(originalMethod, instance.instance);
+        const transactionalOptions = this.reflector.get<TransactionalOptions | undefined>(
+          TRANSACTIONAL_OPTION,
+          originalMethod,
+        );
+
+        instance.instance[name] = this.wrapMethod(originalMethod, instance.instance, transactionalOptions);
       }
     }
   }
@@ -106,8 +226,9 @@ export class DatabaseModule implements OnModuleInit {
       .forEach(({ instance }) => {
         Object.defineProperty(instance, 'txManager', {
           configurable: false,
+
           get() {
-            return alsService.queryRunner?.manager;
+            return alsService.entityManager;
           },
         });
       });

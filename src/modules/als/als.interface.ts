@@ -1,6 +1,6 @@
-import { QueryRunner } from 'typeorm';
+import { EntityManager } from 'typeorm';
 
-export type AlsStorage = {
+export interface AlsStorage extends Record<string, any> {
   requestId?: string;
-  queryRunner?: QueryRunner;
-};
+  entityManager?: EntityManager;
+}

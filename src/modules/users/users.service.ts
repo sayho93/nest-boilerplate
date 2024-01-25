@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Transactional } from 'src/common/decorators/transactional.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersDto } from './dto/find-users.dto';
@@ -18,11 +18,7 @@ export class UsersService {
   public async create(createUserDto: CreateUserDto) {
     createUserDto.password = await createHash(createUserDto.password);
 
-    const user = await this.usersRepository.create(createUserDto);
-    this.loggerService.debug(this.create.name, 'testing transaction');
-    throw new ServiceUnavailableException('test');
-
-    return user;
+    return await this.usersRepository.create(createUserDto);
   }
 
   @Transactional()
@@ -38,7 +34,6 @@ export class UsersService {
     return user;
   }
 
-  @Transactional()
   public async updateOne(id: number, updateUserDto: UpdateUserDto) {
     const user = await this.usersRepository.updateOne(id, updateUserDto);
     if (!user) throw new NotFoundException('user not found');

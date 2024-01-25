@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Version, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Version } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersDto } from './dto/find-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -14,31 +14,31 @@ export class UsersController {
 
   @Version('1')
   @Post()
-  public create(@Body() createUserDto: CreateUserDto) {
+  public async create(@Body() createUserDto: CreateUserDto) {
     return this.usersService.create(createUserDto);
   }
 
   @Version('1')
   @Get()
-  public findAll(@Query() findUserDto: FindUsersDto) {
+  public async findAll(@Query() findUserDto: FindUsersDto) {
     return this.usersService.findMany(findUserDto);
   }
 
   @Version('1')
   @Get(':id')
-  public findOne(@Param('id') id: number) {
+  public async findOne(@Param('id') id: number) {
     return this.usersService.findOneById(id);
   }
 
   @Version('1')
   @Patch(':id')
-  public update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+  public async update(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
     return this.usersService.updateOne(id, updateUserDto);
   }
 
   @Version('1')
   @Delete(':id')
-  public remove(@Param('id') id: number) {
+  public async remove(@Param('id') id: number) {
     return this.usersService.remove(id);
   }
 }

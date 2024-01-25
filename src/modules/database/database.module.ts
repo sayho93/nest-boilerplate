@@ -36,35 +36,6 @@ import { UsersEntity } from '../users/entities/users.entity';
           entities: [UsersEntity],
         };
       },
-      // async dataSourceFactory(options?: DataSourceOptions) {
-      //   if (!options) {
-      //     throw new Error('Invalid options');
-      //   }
-      //   //
-      //   // const dataSource = new DataSource(options);
-      //   //
-      //   // if (isDataSource(dataSource)) {
-      //   //   input = { name: 'default', dataSource: input, patch: true };
-      //   // }
-      //   //
-      //   // const { name = 'default', dataSource, patch = true } = input;
-      //   // if (dataSources.has(name)) {
-      //   //   throw new Error(`DataSource with name "${name}" has already added.`);
-      //   // }
-      //   //
-      //   // if (patch) {
-      //   //   patchDataSource(dataSource);
-      //   // }
-      //   //
-      //   // dataSources.set(name, dataSource);
-      //   // // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      //   // // @ts-ignore
-      //   // dataSource[TYPEORM_DATA_SOURCE_NAME] = name;
-      //   //
-      //   // return input.dataSource;
-      //   //
-      //   // return;
-      // },
     }),
   ],
 })
@@ -86,26 +57,18 @@ export class DatabaseModule implements OnModuleInit {
 
   private async runInNewHookContext(alsService: AlsService, cb: () => Promise<unknown>) {
     try {
-      console.log('................................................................');
       const result = await cb();
-
-      // alsService.entityManager?.queryRunner?.commitTransaction();
-      // alsService.entityManager?.release();
       // setImmediate(() => {
-      //   eventEmitter.emit('test.commit');
-      //   eventEmitter.emit('test.release', undefined);
+      //   eventEmitter.emit('transaction.commit');
+      //   eventEmitter.emit('transaction.release', undefined);
       // });
 
       return result;
     } catch (err) {
-      // alsService.entityManager?.queryRunner?.rollbackTransaction();
-      // alsService.entityManager?.release();
-      // eventEmitter.emit('test.rollback');
-      // eventEmitter.emit('test.release', undefined);
+      // eventEmitter.emit('transaction.rollback');
+      // eventEmitter.emit('transaction.release', undefined);
       throw err;
     }
-
-    // return await alsService.run({ ...alsService.store, entityManager: alsService.entityManager }, async () => {});
   }
 
   private wrapMethod(originalMethod: any, instance: any, options?: TransactionalOptions) {
@@ -130,11 +93,9 @@ export class DatabaseModule implements OnModuleInit {
         loggerService.info(runWithNewTransaction.name, 'run with new transaction ----------');
         return await runInNewHookContext(alsService, async () => {
           if (!alsService.entityManager) {
-            console.log('::::No entity Manager');
             return dataSource.transaction(transactionCallback);
           }
 
-          console.log('::::entity Manager exists');
           return alsService.entityManager.transaction(transactionCallback);
         });
       };

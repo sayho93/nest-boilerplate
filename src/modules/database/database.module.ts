@@ -77,6 +77,7 @@ export class DatabaseModule implements OnModuleInit {
     return async function (...args: any[]) {
       const storedEntityManager = alsService.entityManager;
       const propagation = options?.propagation ?? Propagation.REQUIRED;
+      const isolationLevel = options?.isolationLevel;
 
       const runOriginal = async () => originalMethod.apply(this, args);
 
@@ -90,19 +91,19 @@ export class DatabaseModule implements OnModuleInit {
       };
 
       const runWithNewTransaction = async () => {
-        loggerService.info(runWithNewTransaction.name, 'run with new transaction ----------');
         return await runInNewHookContext(alsService, async () => {
           if (!alsService.entityManager) {
+            if (isolationLevel) return dataSource.transaction(isolationLevel, transactionCallback);
             return dataSource.transaction(transactionCallback);
           }
 
+          if (isolationLevel) return alsService.entityManager.transaction(isolationLevel, transactionCallback);
           return alsService.entityManager.transaction(transactionCallback);
         });
       };
 
       const runWithoutTransaction = async () => {
         return await runInNewHookContext(alsService, async () => {
-          loggerService.info(runWithNewTransaction.name, 'run without ----------');
           const currentTransaction = alsService.entityManager;
           alsService.entityManager = undefined;
           const originalMethodResult = await runOriginal();

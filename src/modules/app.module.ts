@@ -2,6 +2,7 @@ import { ClassSerializerInterceptor, MiddlewareConsumer, Module, NestModule } fr
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { AlsModule } from './als/als.module';
 import { AppController } from './app.controller';
+import { CacheModule } from './cache/cache.module';
 import { ConfigsModule } from './configs/configs.module';
 import { DatabaseModule } from './database/database.module';
 import { EventsModule } from './events/events.module';
@@ -13,7 +14,7 @@ import { RequestLogInterceptor } from '../interceptors/request-log.interceptor';
 import { AsyncLocalStorageMiddleware } from '../middlewares/async-local-storage.middleware';
 
 @Module({
-  imports: [ConfigsModule, AlsModule, LoggerModule, DatabaseModule, EventsModule, UsersModule],
+  imports: [ConfigsModule, AlsModule, LoggerModule, DatabaseModule, EventsModule, CacheModule, UsersModule],
   controllers: [AppController],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: RequestIdInterceptor },

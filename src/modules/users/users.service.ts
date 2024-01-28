@@ -5,12 +5,14 @@ import { FindUsersDto } from './dto/find-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './users.repository';
 import { createHash } from '../../common/utils/encrypt';
+import { CacheService } from '../cache/cache.service';
 import { LoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class UsersService {
   public constructor(
     private readonly usersRepository: UsersRepository,
+    private readonly cacheService: CacheService,
     private readonly loggerService: LoggerService,
   ) {}
 
@@ -18,7 +20,11 @@ export class UsersService {
   public async create(createUserDto: CreateUserDto) {
     createUserDto.password = await createHash(createUserDto.password);
 
-    return await this.usersRepository.create(createUserDto);
+    const user = await this.usersRepository.create(createUserDto);
+
+    await this.cacheService.set(`users/${user.id}`, user, 60000);
+
+    return user;
   }
 
   @Transactional()

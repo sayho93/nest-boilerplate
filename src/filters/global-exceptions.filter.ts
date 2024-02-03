@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import { LoggerService } from 'src/modules/logger/logger.service';
 import { Env } from '../modules/configs/configs.interface';
 import { ConfigsService } from '../modules/configs/configs.service';
+
 @Catch()
 export class GlobalExceptionsFilter extends BaseExceptionFilter {
   constructor(
@@ -46,29 +47,13 @@ export class GlobalExceptionsFilter extends BaseExceptionFilter {
 
       // API Request Logging
       const request = isLocal
-        ? {
-            method: req.method,
-            url: req.url,
-          }
-        : {
-            method: req.method,
-            url: req.url,
-            headers: req.headers,
-            query: req.query,
-            body: body,
-          };
+        ? { method: req.method, url: req.url }
+        : { method: req.method, url: req.url, headers: req.headers, query: req.query, body: body };
 
       // API Response Logging
       const response = isLocal
-        ? {
-            status: errorResponse.status,
-            responseTime,
-          }
-        : {
-            status: errorResponse.status,
-            responseTime,
-            headers: res.getHeaders(),
-          };
+        ? { status: errorResponse.status, responseTime }
+        : { status: errorResponse.status, responseTime, headers: res.getHeaders() };
 
       if (errorResponse.status >= 500) {
         this.loggerService.error(this.catch.name, exception, 'An unexpected error occurred.', requestId);
@@ -79,6 +64,12 @@ export class GlobalExceptionsFilter extends BaseExceptionFilter {
         { request, response, errorResponse, exception: exception?.stack },
         `-->[ERROR RESPONSE]: ${request.method}, [URL]: ${request.url}, [STATUS]: ${errorResponse.status}, [TIME]: ${responseTime}ms`,
         requestId,
+      );
+
+      this.loggerService.warn(
+        this.catch.name,
+        { request, response, errorResponse, exception: exception?.stack },
+        `[ERROR] [${request.method}]${request.url}`,
       );
 
       res.status(errorResponse.status).json(errorResponse);

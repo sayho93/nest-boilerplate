@@ -50,18 +50,8 @@ export class RequestLogInterceptor implements NestInterceptor {
 
       // API Request Logging
       request = isDevelopment
-        ? {
-            method: req.method,
-            url: req.url,
-          }
-        : {
-            userId,
-            method: req.method,
-            url: req.url,
-            headers: req.headers,
-            query: req.query,
-            body,
-          };
+        ? { method: req.method, url: req.url }
+        : { userId, method: req.method, url: req.url, headers: req.headers, query: req.query, body };
 
       this.loggerService.info(this.intercept.name, { request }, `REQUEST [${request.method}]${request.url}`);
     }
@@ -77,15 +67,8 @@ export class RequestLogInterceptor implements NestInterceptor {
 
           // API Response Logging
           response = isDevelopment
-            ? {
-                status: res.statusCode,
-                responseTime,
-              }
-            : {
-                status: res.statusCode,
-                responseTime,
-                headers: res.getHeaders(),
-              };
+            ? { status: res.statusCode, responseTime }
+            : { status: res.statusCode, responseTime, headers: res.getHeaders() };
 
           this.loggerService.info(
             this.intercept.name,

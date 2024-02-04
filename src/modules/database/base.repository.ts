@@ -2,42 +2,10 @@ import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { DataSource, DeepPartial, EntityManager, FindOptionsOrder, FindOptionsWhere, Repository } from 'typeorm';
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { QueryRunner } from 'typeorm/query-runner/QueryRunner';
 import { BaseEntity } from './base.entity';
 import { ListPagination } from '../../common/abstracts/pagination';
-import { TypeormUpdatedPatchException } from '../../common/exceptions/typeorm-updated-patch.exception';
 import { AlsService } from '../als/als.service';
 import { LoggerService } from '../logger/logger.service';
-
-function PatchDataSource(dataSource: DataSource, originalEntityManager: EntityManager) {
-  const originalQuery = DataSource.prototype.query;
-  dataSource.query = function (...args: unknown[]) {
-    args[2] = args[2] || this.manager?.queryRunner;
-
-    return originalQuery.apply(this, args);
-  } as (query: string, parameters?: any[], queryRunner?: QueryRunner) => Promise<any>;
-
-  const originalCreateQueryBuilder = DataSource.prototype.createQueryBuilder;
-  if (originalCreateQueryBuilder.length !== 3) {
-    throw new TypeormUpdatedPatchException();
-  }
-
-  dataSource.createQueryBuilder = function (...args: unknown[]) {
-    if (args.length === 0) {
-      return originalCreateQueryBuilder.apply(this, [this.manager?.queryRunner]);
-    }
-
-    args[2] = args[2] || this.manager?.queryRunner;
-
-    return originalCreateQueryBuilder.apply(this, args);
-  };
-
-  dataSource.transaction = function (...args: unknown[]) {
-    console.log('tttttttttttttttttttttttttttttttttttttttttttttttt');
-    // @ts-ignore
-    return originalEntityManager.transaction(...args);
-  };
-}
 
 export abstract class FundamentalRepository<T extends BaseEntity> {
   protected abstract readonly loggerService: LoggerService;
@@ -51,7 +19,6 @@ export abstract class FundamentalRepository<T extends BaseEntity> {
   ) {
     this.originalEntityManager = dataSource.manager;
     this.originalRepository = this.originalEntityManager.getRepository(this.classType);
-    // PatchDataSource(dataSource, this.originalEntityManager);
   }
 
   private get txManager(): EntityManager | undefined {
@@ -60,15 +27,10 @@ export abstract class FundamentalRepository<T extends BaseEntity> {
 
   protected get repository(): Repository<T> {
     if (this.txManager) {
-      console.log('-------------------------------tx exists');
-      console.log(this.txManager.queryRunner?.isTransactionActive);
       return this.txManager.getRepository(this.classType);
     }
 
-    console.log('-------------------------------no tx');
     const newManager = this.dataSource.createEntityManager();
-    console.log(newManager.queryRunner?.data);
-    // newManager?.queryRunner?.data = {};
     return newManager.getRepository(this.classType);
   }
 }
@@ -79,14 +41,6 @@ export abstract class BaseRepository<T extends BaseEntity> extends FundamentalRe
   }
 
   public async create(data: DeepPartial<T>): Promise<T> {
-    // await this.dataSource.transaction(async (entityManager: EntityManager) => {
-    //   console.log((entityManager.queryRunner as any)['transactionDepth']);
-    //   await entityManager.transaction(async () => {
-    //     console.log((entityManager.queryRunner as any)['transactionDepth']);
-    //   });
-    // });
-    // @ts-ignore
-    // console.log(this.repository.queryRunner?.isTransactionActive);
     const row = await this.repository.save(data);
 
     return plainToInstance(this.classType, row);

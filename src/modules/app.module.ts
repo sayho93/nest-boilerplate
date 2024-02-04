@@ -7,14 +7,25 @@ import { ConfigsModule } from './configs/configs.module';
 import { DatabaseModule } from './database/database.module';
 import { EventsModule } from './events/events.module';
 import { LoggerModule } from './logger/logger.module';
+import { ProjectsModule } from './projects/projects.module';
 import { UsersModule } from './users/users.module';
+import { GENERAL_CACHE } from '../common/constants/cache.constant';
 import { GlobalExceptionsFilter } from '../filters/global-exceptions.filter';
 import { RequestIdInterceptor } from '../interceptors/request-id.interceptor';
 import { RequestLogInterceptor } from '../interceptors/request-log.interceptor';
 import { AsyncLocalStorageMiddleware } from '../middlewares/async-local-storage.middleware';
 
 @Module({
-  imports: [ConfigsModule, AlsModule, LoggerModule, DatabaseModule, EventsModule, CacheModule, UsersModule],
+  imports: [
+    ConfigsModule,
+    AlsModule,
+    LoggerModule,
+    DatabaseModule,
+    EventsModule,
+    CacheModule.registerAsync({ db: 0, providerToken: GENERAL_CACHE }),
+    UsersModule,
+    ProjectsModule,
+  ],
   controllers: [AppController],
   providers: [
     { provide: APP_INTERCEPTOR, useClass: RequestIdInterceptor },

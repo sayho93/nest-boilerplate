@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Transactional } from 'src/common/decorators/transactional.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersDto } from './dto/find-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './users.repository';
+import { GENERAL_CACHE } from '../../common/constants/cache.constant';
 import { createHash } from '../../common/utils/encrypt';
 import { CacheService } from '../cache/cache.service';
 import { LoggerService } from '../logger/logger.service';
@@ -12,7 +13,7 @@ import { LoggerService } from '../logger/logger.service';
 export class UsersService {
   public constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly cacheService: CacheService,
+    @Inject(GENERAL_CACHE) private readonly cacheService: CacheService,
     private readonly loggerService: LoggerService,
   ) {}
 
@@ -22,7 +23,7 @@ export class UsersService {
 
     const user = await this.usersRepository.create(createUserDto);
 
-    await this.cacheService.set(`users/${user.id}`, user, 60000);
+    // await this.cacheService.set(`users/${user.id}`, user, 60000);
 
     return user;
   }

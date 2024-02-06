@@ -1,4 +1,4 @@
-import type { UsersEntity } from 'src/modules/users/entities/users.entity';
+import type { User } from 'src/modules/users/user.entity';
 import {
   CreateDateColumn,
   DeleteDateColumn,
@@ -30,16 +30,16 @@ export class BaseEntity {
 export class BaseActorEntity extends BaseEntity {
   @ManyToOne('User', 'id')
   @JoinColumn({ name: 'createdBy' })
-  public createdBy: Relation<UsersEntity>;
+  public createdBy: Relation<User>;
 
   // @OneToMany(() => User, user => user.id, {cascade: true, onDelete: 'CASCADE'})
   @ManyToOne('User', 'id')
   @JoinColumn({ name: 'updatedBy' })
-  public updatedBy: Relation<UsersEntity>;
+  public updatedBy: Relation<User>;
 
   @ManyToOne('User', 'id')
   @JoinColumn({ name: 'deletedBy' })
-  public deletedBy: Relation<UsersEntity>;
+  public deletedBy: Relation<User>;
 
   protected constructor() {
     super();

@@ -17,10 +17,9 @@ const options: DataSourceOptions & SeederOptions = {
   migrations: [__dirname + '/migrations/*.ts'],
   migrationsRun: false,
   migrationsTableName: 'migrations',
-
-  seeds: ['migrations/seeds/**/*.ts'],
+  seeds: ['seeds/**/*.ts'],
   seedTracking: false,
-  factories: ['migrations/factories/**/*.ts'],
+  factories: ['seeds/factories/**/*.ts'],
 };
 console.log(options);
 

@@ -71,6 +71,10 @@ export abstract class BaseRepository<T extends BaseEntity> extends FundamentalRe
     return [plainToInstance(this.classType, rows), count];
   }
 
+  // public async findAndCountByQB() {
+  //   const queryBuilder = await this.repository.createQueryBuilder().where();
+  // }
+
   public async findAll(options?: FindManyOptions<T>): Promise<T[]> {
     const rows = await this.repository.find({
       order: { createdAt: -1 } as FindOptionsOrder<T>,

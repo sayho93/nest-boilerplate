@@ -8,10 +8,11 @@ import { Propagation, TransactionalOptions } from './database.interface';
 import { TRANSACTIONAL_KEY, TRANSACTIONAL_OPTION } from '../../common/constants/database.constant';
 import { TransactionalException } from '../../common/exceptions/transactional.exception';
 import { AlsService } from '../als/als.service';
+import { Auth } from '../auth/auth.entity';
 import { Env } from '../configs/configs.interface';
 import { ConfigsService } from '../configs/configs.service';
 import { LoggerService } from '../logger/logger.service';
-import { UsersEntity } from '../users/entities/users.entity';
+import { User } from '../users/user.entity';
 
 @Module({
   imports: [
@@ -33,7 +34,7 @@ import { UsersEntity } from '../users/entities/users.entity';
           synchronize: false,
           dropSchema: false,
           logging: appConfig.env === Env.Development,
-          entities: [UsersEntity],
+          entities: [User, Auth],
         };
       },
     }),

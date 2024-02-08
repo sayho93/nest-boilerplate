@@ -1,7 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { AuthType } from './auth.interface';
-import { createHash } from '../../common/utils/encrypt';
+import { createHash, isSameHash } from '../../common/utils/encrypt';
 import { BaseUuidEntity } from '../database/base.entity';
 import { User } from '../users/user.entity';
 
@@ -33,6 +33,12 @@ export class Auth extends BaseUuidEntity {
   public getPassword(): string {
     return this.password;
   }
+
+  public async compareHash(plain: string): Promise<boolean> {
+    return isSameHash(plain, this.password);
+  }
+
+  public accessToken?: string;
 
   public constructor(type: AuthType) {
     super();

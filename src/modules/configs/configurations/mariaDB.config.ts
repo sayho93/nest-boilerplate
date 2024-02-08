@@ -1,12 +1,13 @@
 import { registerAs } from '@nestjs/config';
+import { Type } from 'class-transformer';
 import { IsNumber, IsString } from 'class-validator';
 import { validateConfig } from './validation';
-import { MariaDB as IMariaDB } from '../configs.interface';
 
-export class MariaDB implements IMariaDB {
+export class MariaDB {
   @IsString()
   host: string;
 
+  @Type(() => Number)
   @IsNumber()
   port: number;
 

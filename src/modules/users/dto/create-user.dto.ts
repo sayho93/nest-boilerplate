@@ -1,18 +1,9 @@
-import { IsEnum, IsNumberString, IsOptional, IsString, Matches, MaxLength, MinLength } from 'class-validator';
-import { EmailRegexp, PasswordRegexp } from '../../../common/constants/regexp.constant';
+import { IsEnum, IsNumberString, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 import { BaseAutoIncrementEntity } from '../../database/base.entity';
 import { User } from '../user.entity';
 import { UserRole } from '../users.interface';
 
 export class CreateUserDto implements Omit<User, keyof BaseAutoIncrementEntity | 'auths'> {
-  @IsString()
-  @Matches(EmailRegexp)
-  public email: string;
-
-  @IsString()
-  @Matches(PasswordRegexp)
-  public password: string;
-
   @IsString()
   @MinLength(3)
   @MaxLength(16)

@@ -1,24 +1,28 @@
 import { ClassConstructor, plainToInstance } from 'class-transformer';
-import { DataSource, DeepPartial, EntityManager, FindOptionsOrder, FindOptionsWhere, Repository } from 'typeorm';
+import {
+  DataSource,
+  DeepPartial,
+  EntityManager,
+  FindOneOptions,
+  FindOptionsOrder,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { FundamentalEntity } from './base.entity';
 import { ListPagination } from '../../common/abstracts/pagination';
-import { AlsService } from '../als/als.service';
 import { LoggerService } from '../logger/logger.service';
 
 export abstract class FundamentalRepository<T extends FundamentalEntity> {
   protected abstract readonly loggerService: LoggerService;
-  protected readonly alsService: AlsService;
   private readonly originalEntityManager: EntityManager;
-  private readonly originalRepository: Repository<T>;
 
   protected constructor(
     private readonly dataSource: DataSource,
     protected readonly classType: ClassConstructor<T>,
   ) {
     this.originalEntityManager = dataSource.manager;
-    this.originalRepository = this.originalEntityManager.getRepository(this.classType);
   }
 
   private get txManager(): EntityManager | undefined {
@@ -52,14 +56,10 @@ export abstract class BaseRepository<T extends FundamentalEntity> extends Fundam
     return plainToInstance(this.classType, row);
   }
 
-  public async findOneByCondition(filterCondition: FindOptionsWhere<T> | FindOptionsWhere<T>[]): Promise<T | null> {
-    const row = this.repository.findOne({ where: filterCondition });
+  public async findOneByCondition(findOneOptions: FindOneOptions<T>): Promise<T | null> {
+    const row = this.repository.findOne(findOneOptions);
 
     return plainToInstance(this.classType, row);
-  }
-
-  public async findWithRelations(relations: any): Promise<T[]> {
-    return this.repository.find(relations);
   }
 
   public async findAndCount(options?: FindManyOptions<T>): Promise<[T[], number]> {
@@ -92,7 +92,7 @@ export abstract class BaseRepository<T extends FundamentalEntity> extends Fundam
     return new ListPagination({ rows, totalCount, page, limit });
   }
 
-  public async updateOne(id: number, partialEntity: QueryDeepPartialEntity<T>): Promise<T | null> {
+  public async updateOne(id: string, partialEntity: QueryDeepPartialEntity<T>): Promise<T | null> {
     const updateResult = await this.repository.update(id, partialEntity);
     if (!updateResult.affected) {
       this.loggerService.error(this.updateOne.name, updateResult, 'not affected');
@@ -105,7 +105,7 @@ export abstract class BaseRepository<T extends FundamentalEntity> extends Fundam
     return this.findOneById(id);
   }
 
-  public async remove(ids: number | number[]): Promise<boolean> {
+  public async remove(ids: string | string[]): Promise<boolean> {
     const deleteResult = await this.repository.delete(ids);
     this.loggerService.debug(this.remove.name, deleteResult);
 

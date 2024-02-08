@@ -1,12 +1,13 @@
 import { registerAs } from '@nestjs/config';
+import { Type } from 'class-transformer';
 import { IsNumber, IsString } from 'class-validator';
 import { validateConfig } from './validation';
-import { Redis as IRedis } from '../configs.interface';
 
-export class Redis implements IRedis {
+export class Redis {
   @IsString()
   host: string;
 
+  @Type(() => Number)
   @IsNumber()
   port: number;
 

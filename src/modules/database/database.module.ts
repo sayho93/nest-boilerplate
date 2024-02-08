@@ -1,7 +1,6 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { DiscoveryModule, DiscoveryService, MetadataScanner, Reflector } from '@nestjs/core';
-import { EventEmitter2 } from '@nestjs/event-emitter';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSource, EntityManager } from 'typeorm';
 import { BaseRepository } from './base.repository';
 import { Propagation, TransactionalOptions } from './database.interface';
@@ -11,19 +10,17 @@ import { AlsService } from '../als/als.service';
 import { Auth } from '../auth/auth.entity';
 import { Env } from '../configs/configs.interface';
 import { ConfigsService } from '../configs/configs.service';
-import { LoggerService } from '../logger/logger.service';
 import { User } from '../users/user.entity';
 
 @Module({
   imports: [
     DiscoveryModule,
     TypeOrmModule.forRootAsync({
-      inject: [ConfigsService],
       useFactory: (configsService: ConfigsService) => {
         const appConfig = configsService.App;
         const mariaDBConfig = configsService.MariaDB;
 
-        return {
+        const connectionInfo: TypeOrmModuleOptions = {
           type: 'mariadb',
           host: mariaDBConfig.host,
           port: mariaDBConfig.port,
@@ -36,7 +33,10 @@ import { User } from '../users/user.entity';
           logging: appConfig.env === Env.Development,
           entities: [User, Auth],
         };
+
+        return connectionInfo;
       },
+      inject: [ConfigsService],
     }),
   ],
 })
@@ -47,8 +47,6 @@ export class DatabaseModule implements OnModuleInit {
     private readonly metadataScanner: MetadataScanner,
     private readonly reflector: Reflector,
     private readonly dataSource: DataSource,
-    private eventEmitter: EventEmitter2,
-    private readonly loggerService: LoggerService,
   ) {}
 
   public onModuleInit() {
@@ -56,7 +54,7 @@ export class DatabaseModule implements OnModuleInit {
     this.wrapRepositories();
   }
 
-  private async runInNewHookContext(alsService: AlsService, cb: () => Promise<unknown>) {
+  private async runInNewHookContext(cb: () => Promise<unknown>) {
     try {
       const result = await cb();
       // setImmediate(() => {
@@ -72,8 +70,8 @@ export class DatabaseModule implements OnModuleInit {
     }
   }
 
-  private wrapMethod(originalMethod: any, instance: any, options?: TransactionalOptions) {
-    const { alsService, dataSource, runInNewHookContext, eventEmitter, loggerService } = this;
+  private wrapMethod(originalMethod: any, options?: TransactionalOptions) {
+    const { alsService, dataSource, runInNewHookContext } = this;
 
     return async function (...args: any[]) {
       const storedEntityManager = alsService.entityManager;
@@ -92,7 +90,7 @@ export class DatabaseModule implements OnModuleInit {
       };
 
       const runWithNewTransaction = async () => {
-        return await runInNewHookContext(alsService, async () => {
+        return await runInNewHookContext(async () => {
           if (!alsService.entityManager) {
             if (isolationLevel) return dataSource.transaction(isolationLevel, transactionCallback);
             return dataSource.transaction(transactionCallback);
@@ -104,7 +102,7 @@ export class DatabaseModule implements OnModuleInit {
       };
 
       const runWithoutTransaction = async () => {
-        return await runInNewHookContext(alsService, async () => {
+        return await runInNewHookContext(async () => {
           const currentTransaction = alsService.entityManager;
           alsService.entityManager = undefined;
           const originalMethodResult = await runOriginal();
@@ -173,7 +171,7 @@ export class DatabaseModule implements OnModuleInit {
           originalMethod,
         );
 
-        instance.instance[name] = this.wrapMethod(originalMethod, instance.instance, transactionalOptions);
+        instance.instance[name] = this.wrapMethod(originalMethod, transactionalOptions);
       }
     }
   }

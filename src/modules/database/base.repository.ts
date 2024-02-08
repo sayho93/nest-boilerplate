@@ -2,12 +2,12 @@ import { ClassConstructor, plainToInstance } from 'class-transformer';
 import { DataSource, DeepPartial, EntityManager, FindOptionsOrder, FindOptionsWhere, Repository } from 'typeorm';
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { BaseEntity } from './base.entity';
+import { FundamentalEntity } from './base.entity';
 import { ListPagination } from '../../common/abstracts/pagination';
 import { AlsService } from '../als/als.service';
 import { LoggerService } from '../logger/logger.service';
 
-export abstract class FundamentalRepository<T extends BaseEntity> {
+export abstract class FundamentalRepository<T extends FundamentalEntity> {
   protected abstract readonly loggerService: LoggerService;
   protected readonly alsService: AlsService;
   private readonly originalEntityManager: EntityManager;
@@ -35,7 +35,7 @@ export abstract class FundamentalRepository<T extends BaseEntity> {
   }
 }
 
-export abstract class BaseRepository<T extends BaseEntity> extends FundamentalRepository<T> {
+export abstract class BaseRepository<T extends FundamentalEntity> extends FundamentalRepository<T> {
   protected constructor(dataSource: DataSource, classType: ClassConstructor<T>) {
     super(dataSource, classType);
   }
@@ -46,8 +46,8 @@ export abstract class BaseRepository<T extends BaseEntity> extends FundamentalRe
     return plainToInstance(this.classType, row);
   }
 
-  public async findOneById(id: number): Promise<T | null> {
-    const row = this.repository.findOneBy({ id } as FindOptionsWhere<T>);
+  public async findOneById(id: number | string): Promise<T | null> {
+    const row = this.repository.findOneBy({ id } as unknown as FindOptionsWhere<T>);
 
     return plainToInstance(this.classType, row);
   }

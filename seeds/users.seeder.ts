@@ -1,9 +1,11 @@
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
+import { Auth } from '../src/modules/auth/auth.entity';
+import { AuthType } from '../src/modules/auth/auth.interface';
 import { User } from '../src/modules/users/user.entity';
 import { UserRole } from '../src/modules/users/users.interface';
 
-export default class UserSeeder implements Seeder {
+export default class UserWithAuthSeeder implements Seeder {
   /**
    * Track seeder execution.
    *
@@ -12,18 +14,23 @@ export default class UserSeeder implements Seeder {
   track = false;
 
   public async run(dataSource: DataSource, factoryManager: SeederFactoryManager): Promise<any> {
-    const repository = dataSource.getRepository(User);
+    const userRepository = dataSource.getRepository(User);
     const user = new User();
-    // user.email = 'fishcreek@naver.com';
     user.firstName = '세호';
     user.lastName = '전';
     user.alias = 'sayho';
-    // user.password = await createHash('test');
     user.role = UserRole.ADMIN;
     user.phone = '01029484648';
+
+    const auth = new Auth(AuthType.EMAIL);
+    auth.user = user;
+    auth.email = 'fishcreek@naver.com';
+    await auth.setPassword('test');
+
+    user.auths = [auth];
     console.log(user);
 
-    await repository.insert([user]);
+    await userRepository.save([user]);
 
     // ---------------------------------------------------
 

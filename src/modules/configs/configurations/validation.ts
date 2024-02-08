@@ -4,6 +4,8 @@ import { validateSync } from 'class-validator';
 export function validateConfig<T>(instanceType: ClassConstructor<T>, configObject: object): T {
   const configInstance = plainToInstance(instanceType, configObject, {});
 
+  console.log(configInstance);
+
   const errors = validateSync(configInstance as object, {
     skipMissingProperties: false,
   });

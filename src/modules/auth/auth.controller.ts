@@ -14,7 +14,8 @@ export class AuthController {
     private readonly configsService: ConfigsService,
   ) {}
 
-  @Post('/')
+  @BypassAuth()
+  @Post('/signUp')
   public async signUp() {}
 
   @BypassAuth()

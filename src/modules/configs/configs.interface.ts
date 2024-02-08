@@ -2,6 +2,7 @@ import { Algorithm } from 'jsonwebtoken';
 import { App } from './configurations/app.config';
 import { Mail } from './configurations/mail.config';
 import { MariaDB } from './configurations/mariaDB.config';
+import { OAuth } from './configurations/oauth.config';
 import { Redis } from './configurations/redis.config';
 import { KeyEqualsValueRecord } from '../../common/types/key-equals-value-record.type';
 import { Union } from '../../common/types/union.type';
@@ -17,6 +18,7 @@ export type Env = Union<typeof Env>;
 export interface Configs {
   App: App;
   MariaDB: MariaDB;
+  OAuth: OAuth;
   Redis: Redis;
   Mail: Mail;
   Firebase: object;

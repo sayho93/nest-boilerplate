@@ -1,24 +1,28 @@
 import { ClassConstructor, plainToInstance } from 'class-transformer';
-import { DataSource, DeepPartial, EntityManager, FindOptionsOrder, FindOptionsWhere, Repository } from 'typeorm';
+import {
+  DataSource,
+  DeepPartial,
+  EntityManager,
+  FindOneOptions,
+  FindOptionsOrder,
+  FindOptionsWhere,
+  Repository,
+} from 'typeorm';
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { BaseEntity } from './base.entity';
+import { FundamentalEntity } from './base.entity';
 import { ListPagination } from '../../common/abstracts/pagination';
-import { AlsService } from '../als/als.service';
 import { LoggerService } from '../logger/logger.service';
 
-export abstract class FundamentalRepository<T extends BaseEntity> {
+export abstract class FundamentalRepository<T extends FundamentalEntity> {
   protected abstract readonly loggerService: LoggerService;
-  protected readonly alsService: AlsService;
   private readonly originalEntityManager: EntityManager;
-  private readonly originalRepository: Repository<T>;
 
   protected constructor(
     private readonly dataSource: DataSource,
     protected readonly classType: ClassConstructor<T>,
   ) {
     this.originalEntityManager = dataSource.manager;
-    this.originalRepository = this.originalEntityManager.getRepository(this.classType);
   }
 
   private get txManager(): EntityManager | undefined {
@@ -35,7 +39,7 @@ export abstract class FundamentalRepository<T extends BaseEntity> {
   }
 }
 
-export abstract class BaseRepository<T extends BaseEntity> extends FundamentalRepository<T> {
+export abstract class BaseRepository<T extends FundamentalEntity> extends FundamentalRepository<T> {
   protected constructor(dataSource: DataSource, classType: ClassConstructor<T>) {
     super(dataSource, classType);
   }
@@ -46,20 +50,16 @@ export abstract class BaseRepository<T extends BaseEntity> extends FundamentalRe
     return plainToInstance(this.classType, row);
   }
 
-  public async findOneById(id: number): Promise<T | null> {
-    const row = this.repository.findOneBy({ id } as FindOptionsWhere<T>);
+  public async findOneById(id: number | string): Promise<T | null> {
+    const row = this.repository.findOneBy({ id } as unknown as FindOptionsWhere<T>);
 
     return plainToInstance(this.classType, row);
   }
 
-  public async findOneByCondition(filterCondition: FindOptionsWhere<T> | FindOptionsWhere<T>[]): Promise<T | null> {
-    const row = this.repository.findOne({ where: filterCondition });
+  public async findOneByCondition(findOneOptions: FindOneOptions<T>): Promise<T | null> {
+    const row = this.repository.findOne(findOneOptions);
 
     return plainToInstance(this.classType, row);
-  }
-
-  public async findWithRelations(relations: any): Promise<T[]> {
-    return this.repository.find(relations);
   }
 
   public async findAndCount(options?: FindManyOptions<T>): Promise<[T[], number]> {
@@ -70,6 +70,10 @@ export abstract class BaseRepository<T extends BaseEntity> extends FundamentalRe
 
     return [plainToInstance(this.classType, rows), count];
   }
+
+  // public async findAndCountByQB() {
+  //   const queryBuilder = await this.repository.createQueryBuilder().where();
+  // }
 
   public async findAll(options?: FindManyOptions<T>): Promise<T[]> {
     const rows = await this.repository.find({
@@ -88,7 +92,7 @@ export abstract class BaseRepository<T extends BaseEntity> extends FundamentalRe
     return new ListPagination({ rows, totalCount, page, limit });
   }
 
-  public async updateOne(id: number, partialEntity: QueryDeepPartialEntity<T>): Promise<T | null> {
+  public async updateOne(id: string, partialEntity: QueryDeepPartialEntity<T>): Promise<T | null> {
     const updateResult = await this.repository.update(id, partialEntity);
     if (!updateResult.affected) {
       this.loggerService.error(this.updateOne.name, updateResult, 'not affected');
@@ -101,7 +105,7 @@ export abstract class BaseRepository<T extends BaseEntity> extends FundamentalRe
     return this.findOneById(id);
   }
 
-  public async remove(ids: number | number[]): Promise<boolean> {
+  public async remove(ids: string | string[]): Promise<boolean> {
     const deleteResult = await this.repository.delete(ids);
     this.loggerService.debug(this.remove.name, deleteResult);
 

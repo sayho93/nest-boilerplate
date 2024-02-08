@@ -1,15 +1,16 @@
 import { registerAs } from '@nestjs/config';
+import { Type } from 'class-transformer';
 import { IsNumber, IsString } from 'class-validator';
 import { validateConfig } from './validation';
-import { Mail as IMail } from '../configs.interface';
 
-export class Mail implements IMail {
+export class Mail {
   @IsString()
   service: string;
 
   @IsString()
   host: string;
 
+  @Type(() => Number)
   @IsNumber()
   port: number;
 

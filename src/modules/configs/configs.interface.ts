@@ -1,3 +1,9 @@
+import { Algorithm } from 'jsonwebtoken';
+import { App } from './configurations/app.config';
+import { Mail } from './configurations/mail.config';
+import { MariaDB } from './configurations/mariaDB.config';
+import { Redis } from './configurations/redis.config';
+import { KeyEqualsValueRecord } from '../../common/types/key-equals-value-record.type';
 import { Union } from '../../common/types/union.type';
 
 export const Env = {
@@ -8,54 +14,28 @@ export const Env = {
 
 export type Env = Union<typeof Env>;
 
-export interface App {
-  env: Env;
-  serviceName: string;
-  port: number;
-}
-
-export interface MariaDB {
-  host: string;
-  port: number;
-  user: string;
-  password: string;
-  database: string;
-}
-
-export interface Redis {
-  host: string;
-  port: number;
-  password: string;
-}
-
-export interface Mail {
-  service: string;
-  host: string;
-  port: number;
-  user: string;
-  password: string;
-}
-
-export interface Firebase {
-  fcmServer: string;
-  fcmConfig: string;
-
-  type: string;
-  projectId: string;
-  privateKeyId: string;
-  privateKey: string;
-  clientEmail: string;
-  clientId: string;
-  authURI: string;
-  tokenURI: string;
-  authProvider: string;
-  clientCertURL: string;
-}
-
 export interface Configs {
   App: App;
   MariaDB: MariaDB;
   Redis: Redis;
   Mail: Mail;
-  Firebase: Firebase;
+  Firebase: object;
 }
+
+export type AlgorithmRecord = KeyEqualsValueRecord<Algorithm>;
+
+export const JwtAlgorithm: AlgorithmRecord = {
+  ES256: 'ES256',
+  ES384: 'ES384',
+  ES512: 'ES512',
+  HS256: 'HS256',
+  HS384: 'HS384',
+  HS512: 'HS512',
+  PS256: 'PS256',
+  PS384: 'PS384',
+  PS512: 'PS512',
+  RS256: 'RS256',
+  RS384: 'RS384',
+  RS512: 'RS512',
+  none: 'none',
+};

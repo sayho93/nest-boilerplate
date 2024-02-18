@@ -13,6 +13,10 @@ export class GoogleOAuth {
 
   @IsString()
   callbackURL: string;
+
+  scope = ['email', 'profile'];
+
+  prompt = 'none';
 }
 
 export class OAuth {

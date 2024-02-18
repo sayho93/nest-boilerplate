@@ -1,8 +1,9 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
+import { Auth } from '../../modules/auth/auth.entity';
 import { JwtPayload } from '../../modules/auth/auth.interface';
 
-export const getCurrentAuthByContext = (context: ExecutionContext): JwtPayload | undefined => {
+export const getCurrentUserByContext = (context: ExecutionContext): JwtPayload | undefined => {
   switch (context.getType()) {
     case 'http':
       return context.switchToHttp().getRequest<Request>().user;
@@ -13,6 +14,21 @@ export const getCurrentAuthByContext = (context: ExecutionContext): JwtPayload |
   }
 };
 
-export const CurrentAuth = createParamDecorator((_data: unknown, context: ExecutionContext) =>
-  getCurrentAuthByContext(context),
+export const getCurrentAuthByContext = (context: ExecutionContext): Auth | undefined => {
+  switch (context.getType()) {
+    case 'http':
+      return context.switchToHttp().getRequest<Request>().auth;
+    case 'rpc':
+      return context.switchToRpc().getData().user;
+    case 'ws':
+      return context.switchToWs().getData().user;
+  }
+};
+
+export const CurrentAuth = createParamDecorator((_data: unknown, context: ExecutionContext) => {
+  getCurrentAuthByContext(context);
+});
+
+export const CurrentUser = createParamDecorator((_data: unknown, context: ExecutionContext) =>
+  getCurrentUserByContext(context),
 );

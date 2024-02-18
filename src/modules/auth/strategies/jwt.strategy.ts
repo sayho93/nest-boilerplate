@@ -20,8 +20,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       return token;
     };
 
+    const fromAuthHeader = () => (request: Request) => {
+      const [type, token] = request.headers.authorization?.split(' ') ?? [];
+      this.loggerService.info(this.validate.name, { token });
+      return type === 'Bearer' ? token : undefined;
+    };
+
     super({
-      jwtFromRequest: fromAuthCookie(),
+      jwtFromRequest: fromAuthHeader(),
       ignoreExpiration: false,
       secretOrKey: configsService.App.jwtSecret,
       algorithms: configsService.App.jwtAlgorithm,
@@ -29,6 +35,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(jwtPayload: JwtPayload) {
+    console.log('::::::::::::::::::::::::::::::::::::::::::::::::::::::::');
     return jwtPayload;
   }
 }

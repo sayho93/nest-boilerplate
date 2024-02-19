@@ -18,7 +18,7 @@ export class User extends BaseUuidEntity {
   public role: UserRole = UserRole.GUEST;
 
   @Column({ name: 'phone', type: 'varchar', length: 16, nullable: true, comment: '전화번호' })
-  public phone!: string | null;
+  public phone: string | null;
 
   @OneToMany(() => Auth, (auth) => auth.user, { cascade: ['soft-remove', 'insert', 'update'] })
   public auths: Auth[];

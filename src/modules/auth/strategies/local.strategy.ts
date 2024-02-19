@@ -1,25 +1,29 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
+import { Request } from 'express';
 import { Strategy } from 'passport-local';
-import { AuthType, JwtPayload } from '../auth.interface';
+import { LoggerService } from '../../logger/logger.service';
+import { Auth } from '../auth.entity';
+import { AuthType } from '../auth.interface';
 import { AuthService } from '../auth.service';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly authService: AuthService) {
-    super({ usernameField: 'email', passwordField: 'password' });
+  constructor(
+    private readonly authService: AuthService,
+    private readonly loggerService: LoggerService,
+  ) {
+    super({ usernameField: 'email', passwordField: 'password', passReqToCallback: true });
   }
 
-  public async validate(email: string, password: string): Promise<JwtPayload> {
-    const auth = await this.authService.validateEmail({ type: AuthType.EMAIL, email, password });
+  public async validate(req: Request, email: string, password: string): Promise<Auth> {
+    this.loggerService.debug(this.validate.name, { email, password });
+
+    const auth = await this.authService.validate({ type: AuthType.EMAIL, email, password });
     if (!auth) throw new UnauthorizedException();
 
-    return {
-      authId: auth.id,
-      userId: auth.user.id,
-      firstName: auth.user.firstName,
-      lastName: auth.user.lastName,
-      role: auth.user.role,
-    };
+    req.auth = auth;
+
+    return auth;
   }
 }

@@ -5,13 +5,15 @@ import { AuthController } from './auth.controller';
 import { Auth } from './auth.entity';
 import { AuthRepository } from './auth.repository';
 import { AuthService } from './auth.service';
+import { GoogleStrategy } from './strategies/google.strategy';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
+import { UsersModule } from '../users/users.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Auth]), PassportModule],
+  imports: [TypeOrmModule.forFeature([Auth]), PassportModule, UsersModule],
   controllers: [AuthController],
-  providers: [AuthService, AuthRepository, LocalStrategy, JwtStrategy],
+  providers: [AuthService, AuthRepository, LocalStrategy, JwtStrategy, GoogleStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

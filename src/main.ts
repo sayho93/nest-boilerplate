@@ -10,9 +10,7 @@ import { LoggerService } from './modules/logger/logger.service';
 
 class Main {
   public static async bootstrap() {
-    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      bufferLogs: true,
-    });
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, { bufferLogs: true });
     const loggerService = await app.resolve(LoggerService);
     loggerService.setContext(Main.name);
 

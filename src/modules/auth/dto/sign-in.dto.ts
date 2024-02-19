@@ -6,11 +6,26 @@ export class SignInDto {
   @IsEnum(AuthType)
   type: AuthType;
 
-  @IsOptional()
   @IsString()
   email: string;
 
   @IsOptional()
   @IsString()
-  password: string;
+  password?: string;
+
+  @IsOptional()
+  @IsString()
+  firstName?: string;
+
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+
+  @IsOptional()
+  @IsString()
+  accessToken?: string;
+
+  @IsOptional()
+  @IsString()
+  refreshToken?: string;
 }

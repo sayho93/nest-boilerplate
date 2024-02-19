@@ -21,10 +21,7 @@ export class AuthGuard extends PassportAuthGuard(['jwt', 'google']) {
       this.reflector.get<boolean | undefined>(BYPASS_AUTH, context.getHandler());
     if (bypassAuth) return true;
 
-    const canActivate = (await super.canActivate(context)) as boolean;
-    console.log(canActivate);
-
-    return canActivate;
+    return (await super.canActivate(context)) as boolean;
   }
 
   // public handleRequest<JwtPayload>(err: any, user: JwtPayload, info: any, context: ExecutionContext, status?: any) {

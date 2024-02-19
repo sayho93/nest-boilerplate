@@ -9,14 +9,6 @@ export class GoogleAuthGuard extends AuthGuard('google') {
   }
 
   public async canActivate(context: ExecutionContext) {
-    // const bypassAuth =
-    //   this.reflector.get<boolean | undefined>(BYPASS_AUTH, context.getClass()) ||
-    //   this.reflector.get<boolean | undefined>(BYPASS_AUTH, context.getHandler());
-    // if (bypassAuth) return true;
-
-    console.log(':::::::::::::::::::::::::::::::::;');
-    console.log(context.switchToHttp().getRequest().auth);
-
     return super.canActivate(context) as boolean;
   }
 }

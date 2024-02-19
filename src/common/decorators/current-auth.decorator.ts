@@ -25,9 +25,9 @@ export const getCurrentAuthByContext = (context: ExecutionContext): Auth | undef
   }
 };
 
-export const CurrentAuth = createParamDecorator((_data: unknown, context: ExecutionContext) => {
-  getCurrentAuthByContext(context);
-});
+export const CurrentAuth = createParamDecorator((_data: unknown, context: ExecutionContext) =>
+  getCurrentAuthByContext(context),
+);
 
 export const CurrentUser = createParamDecorator((_data: unknown, context: ExecutionContext) =>
   getCurrentUserByContext(context),

@@ -26,6 +26,9 @@ export class App {
   @Type(() => Number)
   @IsNumber()
   jwtExpire: number;
+
+  @IsString()
+  clientURI: string;
 }
 
 export const AppConfig = registerAs(App.name, (): InstanceType<typeof App> => {
@@ -36,6 +39,7 @@ export const AppConfig = registerAs(App.name, (): InstanceType<typeof App> => {
     jwtSecret: process.env.JWT_SECRET,
     jwtAlgorithm: process.env.JWT_ALGORITHM,
     jwtExpire: process.env.JWT_EXPIRE,
+    clientURI: process.env.CLIENT_URI,
   };
 
   return validateConfig(App, config);

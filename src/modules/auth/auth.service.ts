@@ -89,20 +89,7 @@ export class AuthService {
       where: { email: signInDto.email, type: signInDto.type },
       relations: { user: true },
     });
-
-    if (!auth) {
-      return this.createAuth(signInDto);
-    }
-
-    // const payload: JwtPayload = {
-    //   authId: auth.id,
-    //   userId: auth.user.id,
-    //   firstName: auth.user.firstName,
-    //   lastName: auth.user.lastName,
-    //   role: auth.user.role,
-    // };
-    // const tokens = await this.createToken(payload);
-    // auth.accessToken = tokens.accessToken;
+    if (!auth) return this.createAuth(signInDto);
 
     return auth;
   }

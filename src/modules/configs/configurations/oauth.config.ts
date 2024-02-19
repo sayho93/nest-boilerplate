@@ -20,6 +20,9 @@ export class GoogleOAuth {
 }
 
 export class OAuth {
+  @IsString()
+  clientAuthCallbackPath: string;
+
   @IsObject()
   @ValidateNested({ each: true })
   @Type(() => GoogleOAuth)
@@ -28,6 +31,7 @@ export class OAuth {
 
 export const OAuthConfig = registerAs(OAuth.name, (): InstanceType<typeof OAuth> => {
   const config = {
+    clientAuthCallbackPath: process.env.OAUTH_CLIENT_AUTH_CALLBACK_PATH,
     google: {
       clientID: process.env.OAUTH_GOOGLE_CLIENT_ID,
       clientSecret: process.env.OAUTH_GOOGLE_SECRET,

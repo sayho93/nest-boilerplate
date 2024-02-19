@@ -17,6 +17,10 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     super({ ...configsService.OAuth.google, passReqToCallback: true });
   }
 
+  public authenticate(req: Request, options?: any) {
+    return super.authenticate(req, options);
+  }
+
   public async validate(
     req: Request,
     accessToken: string,

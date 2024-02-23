@@ -1,10 +1,14 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Auth } from './auth.entity';
 import { AuthType, JwtPayload } from './auth.interface';
 import { AuthRepository } from './auth.repository';
+import { createHash } from './auth.util';
 import { SignInDto } from './dto/sign-in.dto';
-import { Transactional } from '../../common/decorators/transactional.decorator';
+import { CashKeys, GENERAL_CACHE } from '../cache/cache.constant';
+import { CacheService } from '../cache/cache.service';
+import { ConfigsService } from '../configs/configs.service';
+import { Transactional } from '../database/transactional.decorator';
 import { User } from '../users/user.entity';
 import { UserRole } from '../users/users.interface';
 import { UsersService } from '../users/users.service';
@@ -13,9 +17,26 @@ import { UsersService } from '../users/users.service';
 export class AuthService {
   constructor(
     private readonly repository: AuthRepository,
+    private readonly configsService: ConfigsService,
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
+    @Inject(GENERAL_CACHE) private readonly cacheService: CacheService,
   ) {}
+
+  private async setTokenToCache(userId: string, token: string) {
+    await this.cacheService.set(CashKeys.TOKEN + userId, token, this.configsService.App.jwtRefreshExpire);
+  }
+
+  public async getTokenFromCacheOrThrow(userId: string) {
+    const refreshToken = await this.cacheService.get(CashKeys.TOKEN + userId);
+    if (!refreshToken) throw new UnauthorizedException('token not found');
+
+    return refreshToken as string;
+  }
+
+  public async deleteTokenFromCache(userId: string) {
+    await this.cacheService.del(CashKeys.TOKEN + userId);
+  }
 
   @Transactional()
   public async signIn(auth: Auth) {
@@ -27,9 +48,14 @@ export class AuthService {
       role: auth.user.role,
     };
 
-    const tokens = await this.createToken(payload);
+    const { accessToken, refreshToken } = await this.createTokens(payload);
 
-    auth.accessToken = tokens.accessToken;
+    auth.accessToken = accessToken;
+    auth.refreshToken = refreshToken;
+
+    const hashedRefreshToken = await createHash(refreshToken);
+
+    await this.setTokenToCache(auth.user.id, hashedRefreshToken);
 
     return auth;
   }
@@ -107,8 +133,14 @@ export class AuthService {
     }
   }
 
-  public async createToken(payload: JwtPayload) {
-    return { accessToken: await this.jwtService.signAsync(payload) };
+  public async createTokens(payload: JwtPayload) {
+    return {
+      accessToken: await this.jwtService.signAsync(payload),
+      refreshToken: await this.jwtService.signAsync(payload, {
+        secret: this.configsService.App.jwtRefreshSecret,
+        expiresIn: this.configsService.App.jwtRefreshExpire,
+      }),
+    };
   }
 
   @Transactional()

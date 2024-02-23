@@ -14,6 +14,8 @@ import { ConfigsService } from '../configs/configs.service';
             algorithm: appConfig.jwtAlgorithm,
             expiresIn: `${appConfig.jwtExpire}s`,
             allowInsecureKeySizes: false,
+            audience: appConfig.clientURI,
+            issuer: appConfig.jwtIssuer,
           },
         };
       },

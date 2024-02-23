@@ -1,9 +1,13 @@
 import { Cache } from '@nestjs/cache-manager';
 import { Injectable } from '@nestjs/common';
+import { ConfigsService } from '../configs/configs.service';
 
 @Injectable()
 export class CacheService {
-  constructor(private cacheManager: Cache) {}
+  constructor(
+    private cacheManager: Cache,
+    private readonly configsService: ConfigsService,
+  ) {}
 
   public async test(): Promise<any> {
     return this.cacheManager.store;

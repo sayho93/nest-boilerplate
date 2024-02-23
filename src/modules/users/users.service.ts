@@ -1,11 +1,11 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-import { Transactional } from 'src/common/decorators/transactional.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersDto } from './dto/find-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './users.repository';
-import { GENERAL_CACHE } from '../../common/constants/cache.constant';
+import { GENERAL_CACHE } from '../cache/cache.constant';
 import { CacheService } from '../cache/cache.service';
+import { Transactional } from '../database/transactional.decorator';
 import { LoggerService } from '../logger/logger.service';
 
 @Injectable()

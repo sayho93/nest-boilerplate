@@ -3,7 +3,7 @@ import { Auth } from '../../modules/auth/auth.entity';
 import { JwtPayload } from '../../modules/auth/auth.interface';
 
 interface CookieStore {
-  Authentication?: { accessToken: string };
+  // Authentication?: { accessToken: string };
 }
 
 declare module 'express' {

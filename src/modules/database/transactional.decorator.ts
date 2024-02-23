@@ -1,6 +1,6 @@
 import { applyDecorators, SetMetadata } from '@nestjs/common';
+import { TRANSACTIONAL_KEY, TRANSACTIONAL_OPTION } from '../../modules/database/database.constant';
 import { TransactionalOptions } from '../../modules/database/database.interface';
-import { TRANSACTIONAL_KEY, TRANSACTIONAL_OPTION } from '../constants/database.constant';
 
 export function Transactional(options?: TransactionalOptions): MethodDecorator {
   const decorators: MethodDecorator[] = [SetMetadata(TRANSACTIONAL_KEY, true)];

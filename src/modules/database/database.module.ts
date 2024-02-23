@@ -3,8 +3,8 @@ import { DiscoveryModule, DiscoveryService, MetadataScanner, Reflector } from '@
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { DataSource, EntityManager } from 'typeorm';
 import { BaseRepository } from './base.repository';
+import { TRANSACTIONAL_KEY, TRANSACTIONAL_OPTION } from './database.constant';
 import { Propagation, TransactionalOptions } from './database.interface';
-import { TRANSACTIONAL_KEY, TRANSACTIONAL_OPTION } from '../../common/constants/database.constant';
 import { TransactionalException } from '../../common/exceptions/transactional.exception';
 import { AlsService } from '../als/als.service';
 import { Auth } from '../auth/auth.entity';

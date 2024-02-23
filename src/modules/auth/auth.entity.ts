@@ -1,7 +1,7 @@
 import { Exclude } from 'class-transformer';
 import { Column, Entity, Index, ManyToOne } from 'typeorm';
 import { AuthType } from './auth.interface';
-import { createHash, isSameHash } from '../../common/utils/encrypt';
+import { createHash, isSameHash } from './auth.util';
 import { BaseUuidEntity } from '../database/base.entity';
 import { User } from '../users/user.entity';
 
@@ -26,6 +26,15 @@ export class Auth extends BaseUuidEntity {
   @Column({ type: 'varchar', nullable: true, length: 256, comment: 'token' })
   public token: string;
 
+  public accessToken?: string;
+
+  public refreshToken?: string;
+
+  public constructor(type: AuthType) {
+    super();
+    this.type = type;
+  }
+
   public async setPassword(plainPassword: string) {
     this.password = await createHash(plainPassword);
   }
@@ -36,12 +45,5 @@ export class Auth extends BaseUuidEntity {
 
   public async compareHash(plain: string): Promise<boolean> {
     return isSameHash(plain, this.password);
-  }
-
-  public accessToken?: string;
-
-  public constructor(type: AuthType) {
-    super();
-    this.type = type;
   }
 }

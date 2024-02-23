@@ -7,19 +7,19 @@ import {
   HttpStatus,
   Post,
   Redirect,
-  Req,
   Res,
   ServiceUnavailableException,
   UseGuards,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { Auth } from './auth.entity';
 import { AuthType } from './auth.interface';
 import { AuthService } from './auth.service';
+import { BypassAuth } from './decorators/auth.decorator';
+import { CurrentAuth } from './decorators/current-auth.decorator';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
+import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
-import { BypassAuth } from '../../common/decorators/auth.decorator';
-import { CurrentAuth } from '../../common/decorators/current-auth.decorator';
 import { ConfigsService } from '../configs/configs.service';
 import { LoggerService } from '../logger/logger.service';
 
@@ -44,9 +44,9 @@ export class AuthController {
   @BypassAuth()
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
-  @Post('/signIn/email')
-  public async signIn(@Req() request: Request): Promise<Auth> {
-    return this.authService.signIn(request.auth!);
+  @Post(`/signIn/${AuthType.EMAIL}`)
+  public async signIn(@CurrentAuth() auth: Auth): Promise<Auth> {
+    return this.authService.signIn(auth);
   }
 
   @BypassAuth()
@@ -64,9 +64,16 @@ export class AuthController {
     const authResult = await this.authService.signIn(auth);
 
     return {
-      url: `${this.clientAuthRedirectURI}/${authResult.accessToken}`,
+      url: `${this.clientAuthRedirectURI}/${authResult.accessToken}?refresh_token=${authResult.refreshToken}`,
       statusCode: HttpStatus.FOUND,
     };
+  }
+
+  @BypassAuth()
+  @UseGuards(JwtRefreshGuard)
+  @Get(`/refresh`)
+  public async refresh(@CurrentAuth() auth: Auth) {
+    return this.authService.signIn(auth);
   }
 
   @Delete('/signOut')

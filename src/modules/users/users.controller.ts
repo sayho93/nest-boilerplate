@@ -3,8 +3,8 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersDto } from './dto/find-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersService } from './users.service';
-import { CurrentAuth } from '../../common/decorators/current-auth.decorator';
 import { JwtPayload } from '../auth/auth.interface';
+import { CurrentAuth } from '../auth/decorators/current-auth.decorator';
 
 @Controller('/users')
 export class UsersController {

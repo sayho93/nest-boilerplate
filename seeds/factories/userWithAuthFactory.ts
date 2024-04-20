@@ -10,6 +10,7 @@ export const UserWithAuthFactory = setSeederFactory(User, async (faker) => {
   const user = new User();
   user.firstName = firstName;
   user.lastName = lastName;
+  user.phone = faker.helpers.fromRegExp(/010[0-9]{8}/);
   user.alias = faker.internet.displayName({ firstName, lastName });
 
   const auth = new Auth(AuthType.GOOGLE);

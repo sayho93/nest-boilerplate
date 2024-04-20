@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany } from 'typeorm';
 import { UserRole } from './users.interface';
 import { Auth } from '../auth/auth.entity';
+import { Credit } from '../credits/entities/credit.entity';
 import { BaseUuidEntity } from '../database/base.entity';
 
 @Entity('user')
@@ -17,11 +18,14 @@ export class User extends BaseUuidEntity {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.GUEST, comment: '권한' })
   public role: UserRole = UserRole.GUEST;
 
-  @Column({ name: 'phone', type: 'varchar', length: 16, nullable: true, comment: '전화번호' })
+  @Column({ unique: true, name: 'phone', type: 'varchar', length: 16, comment: '전화번호' })
   public phone: string | null;
 
   @OneToMany(() => Auth, (auth) => auth.user, { cascade: ['soft-remove', 'insert', 'update'] })
   public auths: Auth[];
+
+  @OneToMany(() => Credit, (credit) => credit.user, { cascade: ['soft-remove', 'insert', 'update'] })
+  public credits: Credit[];
 
   public constructor() {
     super();

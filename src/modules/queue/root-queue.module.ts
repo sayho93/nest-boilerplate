@@ -15,6 +15,7 @@ import { ConfigsService } from '../configs/configs.service';
             host: redisConfig.host,
             port: redisConfig.port,
             password: redisConfig.password,
+            db: redisConfig.queueDb,
           },
           defaultJobOptions: {
             removeOnComplete: 1000,

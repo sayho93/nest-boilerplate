@@ -3,19 +3,20 @@ import { Queue } from 'bullmq';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersDto } from './dto/find-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserCreatedOps } from './users.const';
+import { User } from './user.entity';
 import { UsersRepository } from './users.repository';
 import { GENERAL_CACHE } from '../cache/cache.constant';
 import { CacheService } from '../cache/cache.service';
 import { Transactional } from '../database/transactional.decorator';
 import { LoggerService } from '../logger/logger.service';
+import { USER_CREATED_EVENT, UserCreatedEventOps } from '../queue/queue.const';
 import { InjectUserCreatedQueue } from '../queue/queue.decorator';
 
 @Injectable()
 export class UsersService {
   public constructor(
     private readonly repository: UsersRepository,
-    @InjectUserCreatedQueue() private readonly userCreatedQueue: Queue,
+    @InjectUserCreatedQueue() private readonly userCreatedEventQueue: Queue<User, User | string, string>,
     @Inject(GENERAL_CACHE) private readonly cacheService: CacheService,
     private readonly loggerService: LoggerService,
   ) {}
@@ -23,7 +24,12 @@ export class UsersService {
   @Transactional()
   public async create(createUserDto: CreateUserDto) {
     const user = await this.repository.create(createUserDto);
-    await this.userCreatedQueue.add(UserCreatedOps.CREATE_DEFAULT_PROJECT, user);
+    const result = await this.userCreatedEventQueue.add(UserCreatedEventOps.CREATE_DEFAULT_PROJECT, user);
+    this.loggerService.debug(this.create.name, USER_CREATED_EVENT);
+    this.loggerService.debug(this.create.name, result.name);
+    this.loggerService.debug(this.create.name, result.data);
+    this.loggerService.debug(this.create.name, result.id || '');
+
     return user;
   }
 

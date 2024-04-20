@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
+import { LoggerService } from '../logger/logger.service';
 
 @Injectable()
 export class ProjectsService {
-  constructor() {}
+  constructor(private readonly loggerService: LoggerService) {}
 
   public async create(createProjectDto: CreateProjectDto) {
+    this.loggerService.debug(this.create.name, 'This action adds a new project');
     return 'This action adds a new project';
   }
 

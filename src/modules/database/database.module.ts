@@ -16,6 +16,7 @@ import { User } from '../users/user.entity';
   imports: [
     DiscoveryModule,
     TypeOrmModule.forRootAsync({
+      inject: [ConfigsService],
       useFactory: (configsService: ConfigsService) => {
         const appConfig = configsService.App;
         const mariaDBConfig = configsService.MariaDB;
@@ -36,7 +37,6 @@ import { User } from '../users/user.entity';
 
         return connectionInfo;
       },
-      inject: [ConfigsService],
     }),
   ],
 })

@@ -12,6 +12,7 @@ import { EventsModule } from './events/events.module';
 import { JwtModule } from './jwt/jwt.module';
 import { LoggerModule } from './logger/logger.module';
 import { ProjectsModule } from './projects/projects.module';
+import { RootQueueModule } from './queue/root-queue.module';
 import { UsersModule } from './users/users.module';
 import { GlobalExceptionsFilter } from '../filters/global-exceptions.filter';
 import { RequestIdInterceptor } from '../interceptors/request-id.interceptor';
@@ -26,6 +27,7 @@ import { AsyncLocalStorageMiddleware } from '../middlewares/async-local-storage.
     DatabaseModule,
     EventsModule,
     CacheModule.registerAsync({ db: 0, providerToken: GENERAL_CACHE }),
+    RootQueueModule,
     JwtModule,
     UsersModule,
     AuthModule,

@@ -10,6 +10,7 @@ import { AlsService } from '../als/als.service';
 import { Auth } from '../auth/auth.entity';
 import { Env } from '../configs/configs.interface';
 import { ConfigsService } from '../configs/configs.service';
+import { Credit } from '../credits/entities/credit.entity';
 import { User } from '../users/user.entity';
 
 @Module({
@@ -32,7 +33,7 @@ import { User } from '../users/user.entity';
           synchronize: false,
           dropSchema: false,
           logging: appConfig.env === Env.Development,
-          entities: [User, Auth],
+          entities: [User, Auth, Credit],
         };
 
         return connectionInfo;

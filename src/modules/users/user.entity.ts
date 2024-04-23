@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, Index, OneToMany } from 'typeorm';
 import { UserRole } from './users.interface';
 import { Auth } from '../auth/auth.entity';
 import { Credit } from '../credits/entities/credit.entity';
@@ -18,6 +18,7 @@ export class User extends BaseUuidEntity {
   @Column({ type: 'enum', enum: UserRole, default: UserRole.GUEST, comment: '권한' })
   public role: UserRole = UserRole.GUEST;
 
+  @Index()
   @Column({ unique: true, name: 'phone', type: 'varchar', length: 16, comment: '전화번호' })
   public phone: string | null;
 

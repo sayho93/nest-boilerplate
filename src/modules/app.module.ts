@@ -7,12 +7,13 @@ import { JwtAuthGuard } from './auth/guards/jwt-auth.guard';
 import { GENERAL_CACHE } from './cache/cache.constant';
 import { CacheModule } from './cache/cache.module';
 import { ConfigsModule } from './configs/configs.module';
+import { CreditsModule } from './credits/credits.module';
 import { DatabaseModule } from './database/database.module';
 import { EventsModule } from './events/events.module';
 import { JwtModule } from './jwt/jwt.module';
 import { LoggerModule } from './logger/logger.module';
 import { ProjectsModule } from './projects/projects.module';
-import { RootQueueModule } from './queue/root-queue.module';
+import { QueueModule } from './queue/queue.module';
 import { UsersModule } from './users/users.module';
 import { GlobalExceptionsFilter } from '../filters/global-exceptions.filter';
 import { RequestIdInterceptor } from '../interceptors/request-id.interceptor';
@@ -27,11 +28,12 @@ import { AsyncLocalStorageMiddleware } from '../middlewares/async-local-storage.
     DatabaseModule,
     EventsModule,
     CacheModule.registerAsync({ db: 0, providerToken: GENERAL_CACHE }),
-    RootQueueModule,
+    QueueModule.forRoot([ProjectsModule, CreditsModule]),
     JwtModule,
     UsersModule,
     AuthModule,
     ProjectsModule,
+    CreditsModule,
   ],
   controllers: [AppController],
   providers: [

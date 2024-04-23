@@ -3,7 +3,7 @@ import { BaseAutoIncrementEntity } from '../../database/base.entity';
 import { User } from '../user.entity';
 import { UserRole } from '../users.interface';
 
-export class CreateUserDto implements Omit<User, keyof BaseAutoIncrementEntity | 'auths'> {
+export class CreateUserDto implements Omit<User, keyof BaseAutoIncrementEntity | 'auths' | 'credits'> {
   @IsString()
   @MinLength(3)
   @MaxLength(16)

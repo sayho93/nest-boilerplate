@@ -1,6 +1,9 @@
 import { BullModule } from '@nestjs/bullmq';
 import { Module } from '@nestjs/common';
+import { UserCreatedProcessor } from './processors/user-created.processor';
 import { ConfigsService } from '../configs/configs.service';
+import { CreditsModule } from '../credits/credits.module';
+import { ProjectsModule } from '../projects/projects.module';
 
 @Module({
   imports: [
@@ -9,7 +12,6 @@ import { ConfigsService } from '../configs/configs.service';
       useFactory: (configsService: ConfigsService) => {
         const redisConfig = configsService.Redis;
 
-        console.log('redisConfig', redisConfig);
         return {
           connection: {
             host: redisConfig.host,
@@ -25,6 +27,9 @@ import { ConfigsService } from '../configs/configs.service';
         };
       },
     }),
+    ProjectsModule,
+    CreditsModule,
   ],
+  providers: [UserCreatedProcessor],
 })
 export class RootQueueModule {}

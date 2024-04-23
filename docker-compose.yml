@@ -1,19 +1,58 @@
-version: '3'
 services:
-
   mariadb:
-    image: "mariadb:latest"
+    image: 'mariadb:latest'
+    container_name: 'nest-boilerplate-mariadb'
     ports:
-      - "3306:3306"
+      - '3306:3306'
     environment:
-      MYSQL_ROOT_PASSWORD: "admin"
-      MYSQL_USER: "test"
-      MYSQL_PASSWORD: "test"
-      MYSQL_DATABASE: "test"
+      MYSQL_ROOT_PASSWORD: 'admin'
+      MYSQL_USER: 'test'
+      MYSQL_PASSWORD: 'test'
+      MYSQL_DATABASE: 'test'
+    networks:
+      - backend
 
   redis:
-    image: redis:latest
+    image: 'redis:latest'
+    container_name: 'nest-boilerplate-redis'
     command: redis-server --port 6379
     ports:
-      - "6379:6379"
+      - '6379:6379'
+    networks:
+      - backend
 
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    env_file:
+      - ./.env/.env.development
+    environment:
+      - REDIS_HOST=nest-boilerplate-redis
+      - DB_HOST=nest-boilerplate-mariadb
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    command: pnpm start:debug
+    networks:
+      - backend
+    depends_on:
+      - mariadb
+      - redis
+
+  nginx:
+    image: 'nginx:latest'
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    restart: always
+    ports:
+      - '4000:80'
+    networks:
+      - backend
+    depends_on:
+      - app
+
+networks:
+  backend:
+    driver: bridge

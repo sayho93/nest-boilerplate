@@ -4,7 +4,7 @@ import { User } from '../../users/user.entity';
 
 @Entity('credit')
 export class Credit extends BaseUuidActorEntity {
-  @ManyToOne(() => User, (user) => user.credits)
+  @ManyToOne(() => User, (user) => user.credits, { onDelete: 'CASCADE' })
   user: User;
 
   @Column({ name: 'variance', type: 'int', comment: '변화량' })
@@ -12,4 +12,8 @@ export class Credit extends BaseUuidActorEntity {
 
   @Column({ name: 'context', type: 'varchar', length: 255, comment: 'credit 부여/차감 컨텍스트' })
   context: string;
+
+  public constructor() {
+    super();
+  }
 }

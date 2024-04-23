@@ -21,6 +21,8 @@
     "env:down": "oci os object get -bn environments --file .env/.env.test --name nest-boilerplate/.env.test && oci os object get -bn environments --file .env/.env.development --name nest-boilerplate/.env.development && oci os object get -bn environments --file .env/.env.production --name nest-boilerplate/.env.production",
     "docker-compose:up": "docker-compose -f docker-compose.yml up --build -d",
     "docker-compose:down": "docker-compose -f docker-compose.yml down --volumes",
+    "docker-compose-dev:up": "docker-compose -f docker-compose.gateway.yml up --build",
+    "docker-compose-dev:down": "docker-compose -f docker-compose.gateway.yml down --volumes",
     "typeorm": "NODE_ENV=test && ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js -d=typeorm.config.ts",
     "typeorm:create": "pnpm typeorm migration:create ./migrations/$NAME",
     "typeorm:generate": "pnpm typeorm migration:generate ./migrations/$NAME",

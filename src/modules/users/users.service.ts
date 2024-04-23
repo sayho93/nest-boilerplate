@@ -9,14 +9,14 @@ import { GENERAL_CACHE } from '../cache/cache.constant';
 import { CacheService } from '../cache/cache.service';
 import { Transactional } from '../database/transactional.decorator';
 import { LoggerService } from '../logger/logger.service';
-import { USER_CREATED_EVENT, UserCreatedEventOps } from '../queue/queue.const';
+import { UserCreatedEventOps } from '../queue/queue.constant';
 import { InjectUserCreatedQueue } from '../queue/queue.decorator';
 
 @Injectable()
 export class UsersService {
   public constructor(
     private readonly repository: UsersRepository,
-    @InjectUserCreatedQueue() private readonly userCreatedEventQueue: Queue<User, User | string, string>,
+    @InjectUserCreatedQueue() private readonly userCreatedQueue: Queue<User, User | string, string>,
     @Inject(GENERAL_CACHE) private readonly cacheService: CacheService,
     private readonly loggerService: LoggerService,
   ) {}
@@ -24,11 +24,11 @@ export class UsersService {
   @Transactional()
   public async create(createUserDto: CreateUserDto) {
     const user = await this.repository.create(createUserDto);
-    const result = await this.userCreatedEventQueue.add(UserCreatedEventOps.CREATE_DEFAULT_PROJECT, user);
-    this.loggerService.debug(this.create.name, USER_CREATED_EVENT);
-    this.loggerService.debug(this.create.name, result.name);
-    this.loggerService.debug(this.create.name, result.data);
-    this.loggerService.debug(this.create.name, result.id || '');
+
+    await Promise.all([
+      this.userCreatedQueue.add(UserCreatedEventOps.CREATE_DEFAULT_PROJECT, user),
+      this.userCreatedQueue.add(UserCreatedEventOps.GRANT_CREDIT, user),
+    ]);
 
     return user;
   }

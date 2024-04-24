@@ -28,7 +28,7 @@ export class CacheModule {
             const connectOptions = {
               host: redisConfig.host,
               port: redisConfig.port,
-              ...(appConfig.env !== Env.Production && { password: redisConfig.password }),
+              ...(appConfig.env === Env.Production && { password: redisConfig.password }),
               db: options.db,
             };
 

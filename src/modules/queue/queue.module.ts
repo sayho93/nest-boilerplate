@@ -2,8 +2,8 @@ import { BullModule } from '@nestjs/bullmq';
 import { DynamicModule, Module, ModuleMetadata } from '@nestjs/common';
 import { UserCreatedProcessor } from './processors/user-created.processor';
 import { QueueBoardModuleOptions } from './queue.interface';
-import { ConfigsService } from '../configs/configs.service';
 import { Env } from '../configs/configs.interface';
+import { ConfigsService } from '../configs/configs.service';
 
 @Module({})
 export class QueueModule {
@@ -15,14 +15,14 @@ export class QueueModule {
         BullModule.forRootAsync({
           inject: [ConfigsService],
           useFactory: (configsService: ConfigsService) => {
-            const appConfig = configsService.App
+            const appConfig = configsService.App;
             const redisConfig = configsService.Redis;
 
             return {
               connection: {
                 host: redisConfig.host,
                 port: redisConfig.port,
-                ...appConfig.env === Env.Production && {password: redisConfig.password},
+                ...(appConfig.env === Env.Production && { password: redisConfig.password }),
                 db: redisConfig.queueDb,
               },
               defaultJobOptions: {

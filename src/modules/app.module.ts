@@ -12,6 +12,7 @@ import { DatabaseModule } from './database/database.module';
 import { EventsModule } from './events/events.module';
 import { JwtModule } from './jwt/jwt.module';
 import { LoggerModule } from './logger/logger.module';
+import { MailModule } from './mail/mail.module';
 import { ProjectsModule } from './projects/projects.module';
 import { QueueModule } from './queue/queue.module';
 import { UsersModule } from './users/users.module';
@@ -28,8 +29,9 @@ import { AsyncLocalStorageMiddleware } from '../middlewares/async-local-storage.
     DatabaseModule,
     EventsModule,
     CacheModule.registerAsync({ db: 0, providerToken: GENERAL_CACHE }),
-    QueueModule.forRoot([ProjectsModule, CreditsModule]),
+    QueueModule.forRoot([ProjectsModule, CreditsModule, MailModule]),
     JwtModule,
+    MailModule,
     UsersModule,
     AuthModule,
     ProjectsModule,

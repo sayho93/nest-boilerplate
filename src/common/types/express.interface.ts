@@ -12,7 +12,6 @@ declare module 'express' {
     requestId: string;
     auth?: Auth; // current auth payload
     user?: JwtPayload;
-    cookies?: CookieStore;
   }
 }
 

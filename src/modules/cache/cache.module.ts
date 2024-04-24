@@ -2,6 +2,7 @@ import { CacheModule as NestCacheModule } from '@nestjs/cache-manager';
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { redisStore } from 'cache-manager-ioredis-yet';
 import { CacheService } from './cache.service';
+import { Env } from '../configs/configs.interface';
 import { ConfigsModule } from '../configs/configs.module';
 import { ConfigsService } from '../configs/configs.service';
 
@@ -21,12 +22,13 @@ export class CacheModule {
           imports: [ConfigsModule],
           inject: [ConfigsService],
           useFactory: (configsService: ConfigsService) => {
+            const appConfig = configsService.App;
             const redisConfig = configsService.Redis;
 
             const connectOptions = {
               host: redisConfig.host,
               port: redisConfig.port,
-              password: redisConfig.password,
+              ...(appConfig.env !== Env.Production && { password: redisConfig.password }),
               db: options.db,
             };
 

@@ -28,7 +28,6 @@ export class UsersService {
     await Promise.all([
       this.userCreatedQueue.add(UserCreatedEventOps.CREATE_DEFAULT_PROJECT, user),
       this.userCreatedQueue.add(UserCreatedEventOps.GRANT_CREDIT, user),
-      this.userCreatedQueue.add(UserCreatedEventOps.SEND_EMAIL, user),
     ]);
 
     return user;

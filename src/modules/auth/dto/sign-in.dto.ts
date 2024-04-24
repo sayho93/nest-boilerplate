@@ -15,6 +15,10 @@ export class SignInDto {
 
   @IsOptional()
   @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsString()
   firstName?: string;
 
   @IsOptional()

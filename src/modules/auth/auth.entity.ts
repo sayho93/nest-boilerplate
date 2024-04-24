@@ -6,16 +6,16 @@ import { BaseUuidEntity } from '../database/base.entity';
 import { User } from '../users/user.entity';
 
 @Entity('auth')
-@Index(['deletedAt', 'email'], { unique: true, nullFiltered: true })
+// @Index(['deletedAt', 'email'], { unique: true, nullFiltered: true })
+@Index(['deletedAt', 'type', 'email'], { unique: true })
 export class Auth extends BaseUuidEntity {
   @ManyToOne(() => User, (user) => user.auths, { onDelete: 'CASCADE' })
-  public user: User;
+  public user?: User;
 
   @Column({ type: 'enum', enum: AuthType, comment: '인증타입' })
   public type: AuthType;
 
-  // @Index({ unique: true, where: 'deletedAt IS NULL AND email IS NOT NULL' })
-  @Column({ name: 'email', nullable: true, type: 'varchar', length: 64, update: false, comment: '이메일' })
+  @Column({ name: 'email', type: 'varchar', length: 64, update: false, comment: '이메일' })
   public email: string;
 
   @Exclude({ toPlainOnly: true })
@@ -23,8 +23,11 @@ export class Auth extends BaseUuidEntity {
   private password: string;
 
   @Exclude({ toPlainOnly: true })
-  @Column({ type: 'varchar', nullable: true, length: 256, comment: 'token' })
-  public token: string;
+  @Column({ name: 'token', type: 'varchar', nullable: true, length: 256, comment: 'token' })
+  public token: string | null;
+
+  @Column({ name: 'isVerified', type: 'boolean', comment: '인증 여부', nullable: true })
+  public isVerified: boolean | null;
 
   public accessToken?: string;
 

@@ -1,5 +1,6 @@
 import { Cache } from '@nestjs/cache-manager';
 import { Injectable } from '@nestjs/common';
+import { EmailVerificationCache } from './cache.interface';
 import { ConfigsService } from '../configs/configs.service';
 
 @Injectable()
@@ -27,5 +28,13 @@ export class CacheService {
 
   public async clear() {
     await this.cacheManager.reset();
+  }
+
+  public async setEmailVerification(key: string, value: EmailVerificationCache, ttl?: number) {
+    await this.set(key, value, ttl);
+  }
+
+  public async getEmailVerification(key: string): Promise<EmailVerificationCache | undefined> {
+    return this.cacheManager.get(key);
   }
 }

@@ -3,16 +3,18 @@ import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { MailerOptions } from '@nestjs-modules/mailer/dist/interfaces/mailer-options.interface';
-import { MailController } from './mail.controller';
+import { MAIL_QUEUE } from './mail.constant';
+import { MailQueueProcessor } from './mail.processor';
 import { MailService } from './mail.service';
 import { ConfigsService } from '../configs/configs.service';
-import { LoggerService } from '../logger/logger.service';
+import { QueueModule } from '../queue/queue.module';
 
 @Module({
   imports: [
+    QueueModule.register({ queues: [MAIL_QUEUE] }),
     MailerModule.forRootAsync({
       inject: [ConfigsService],
-      useFactory: (configsService: ConfigsService, loggerService: LoggerService): MailerOptions => {
+      useFactory: (configsService: ConfigsService): MailerOptions => {
         const mailConfig = configsService.Mail;
 
         return {
@@ -24,6 +26,8 @@ import { LoggerService } from '../logger/logger.service';
               user: mailConfig.user,
               pass: mailConfig.password,
             },
+            logger: false,
+            debug: false,
           },
           defaults: { from: '"sayho" <sayho@psyho.kr>' },
           preview: false,
@@ -36,8 +40,7 @@ import { LoggerService } from '../logger/logger.service';
       },
     }),
   ],
-  controllers: [MailController],
-  providers: [MailService],
+  providers: [MailService, MailQueueProcessor],
   exports: [MailService],
 })
 export class MailModule {}

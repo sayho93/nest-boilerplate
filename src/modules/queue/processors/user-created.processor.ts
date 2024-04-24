@@ -28,17 +28,6 @@ export class UserCreatedProcessor extends WorkerHostProcessor {
         return this.projectsService.create({});
       case UserCreatedEventOps.GRANT_CREDIT:
         return this.creditsService.create({});
-      case UserCreatedEventOps.SEND_EMAIL:
-        return this.mailService.sendSingle({
-          to: 'fishcreek@naver.com',
-          subject: 'Testing Mailer module',
-          template: 'activation_code.html',
-          context: {
-            // Data to be sent to template engine.
-            code: 'cf1a3f828287',
-            username: 'john doe',
-          },
-        });
     }
 
     throw new BadRequestException(`Unknown job name: ${job.name}`);

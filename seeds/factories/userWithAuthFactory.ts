@@ -14,6 +14,7 @@ export const UserWithAuthFactory = setSeederFactory(User, async (faker) => {
   user.alias = faker.internet.displayName({ firstName, lastName });
 
   const auth = new Auth(AuthType.GOOGLE);
+  auth.email = faker.internet.email();
   user.auths = [auth];
   console.log(user);
 

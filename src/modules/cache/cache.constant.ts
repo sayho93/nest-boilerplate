@@ -4,4 +4,5 @@ export const PROJECT_CACHE = Symbol('ProjectCache');
 
 export const CashKeys = {
   TOKEN: 'tokens/',
+  EMAIL_VERIFICATION: 'emailVerification/',
 };

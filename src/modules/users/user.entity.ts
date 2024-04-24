@@ -15,11 +15,11 @@ export class User extends BaseUuidEntity {
   @Column({ name: 'alias', type: 'varchar', length: 40, comment: '별칭' })
   public alias: string;
 
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.GUEST, comment: '권한' })
+  @Column({ name: 'role', type: 'enum', enum: UserRole, default: UserRole.GUEST, comment: '권한' })
   public role: UserRole = UserRole.GUEST;
 
-  @Index()
-  @Column({ unique: true, name: 'phone', type: 'varchar', length: 16, comment: '전화번호' })
+  @Index({ unique: true, nullFiltered: true })
+  @Column({ name: 'phone', type: 'varchar', nullable: true, length: 16, comment: '전화번호' })
   public phone: string | null;
 
   @OneToMany(() => Auth, (auth) => auth.user, { cascade: ['soft-remove', 'insert', 'update'] })

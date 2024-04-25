@@ -1,6 +1,6 @@
 import { Request as ExpressRequest } from 'express';
-import { Auth } from '../../modules/auth/auth.entity';
 import { JwtPayload } from '../../modules/auth/auth.interface';
+import { Auth } from '../../modules/auth/entities/auth.entity';
 
 interface CookieStore {
   // Authentication?: { accessToken: string };

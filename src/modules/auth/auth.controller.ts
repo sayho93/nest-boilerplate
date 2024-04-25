@@ -15,12 +15,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { Auth } from './auth.entity';
 import { AuthType, JwtPayload } from './auth.interface';
 import { AuthService } from './auth.service';
 import { BypassAuth } from './decorators/auth.decorator';
 import { CurrentAuth, CurrentUser } from './decorators/current-auth.decorator';
 import { SignUpDto } from './dto/sign-up.dto';
+import { Auth } from './entities/auth.entity';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';

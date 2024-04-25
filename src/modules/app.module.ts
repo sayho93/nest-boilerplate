@@ -29,7 +29,7 @@ import { AsyncLocalStorageMiddleware } from '../middlewares/async-local-storage.
     DatabaseModule,
     EventsModule,
     CacheModule.registerAsync({ db: 0, providerToken: GENERAL_CACHE }),
-    QueueModule.forRoot([ProjectsModule, CreditsModule, MailModule]),
+    QueueModule.forRoot([]),
     JwtModule,
     MailModule,
     UsersModule,

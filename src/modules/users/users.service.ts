@@ -3,20 +3,24 @@ import { Queue } from 'bullmq';
 import { CreateUserDto } from './dto/create-user.dto';
 import { FindUsersDto } from './dto/find-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
 import { GENERAL_CACHE } from '../cache/cache.constant';
 import { CacheService } from '../cache/cache.service';
+import { CreditsQueueOps } from '../credits/credits.constant';
+import { Credit } from '../credits/entities/credit.entity';
 import { Transactional } from '../database/transactional.decorator';
 import { LoggerService } from '../logger/logger.service';
-import { UserCreatedEventOps } from '../queue/queue.constant';
-import { InjectUserCreatedQueue } from '../queue/queue.decorator';
+import { Project } from '../projects/entities/project.entity';
+import { ProjectsQueueOps } from '../projects/projects.constant';
+import { InjectCreditsQueue, InjectProjectsQueue } from '../queue/queue.decorator';
 
 @Injectable()
 export class UsersService {
   public constructor(
     private readonly repository: UsersRepository,
-    @InjectUserCreatedQueue() private readonly userCreatedQueue: Queue<User, User | string, string>,
+    @InjectProjectsQueue() private readonly projectsQueue: Queue<User, Project>,
+    @InjectCreditsQueue() private readonly creditQueue: Queue<User, Credit>,
     @Inject(GENERAL_CACHE) private readonly cacheService: CacheService,
     private readonly loggerService: LoggerService,
   ) {}
@@ -26,8 +30,8 @@ export class UsersService {
     const user = await this.repository.create(createUserDto);
 
     await Promise.all([
-      this.userCreatedQueue.add(UserCreatedEventOps.CREATE_DEFAULT_PROJECT, user),
-      this.userCreatedQueue.add(UserCreatedEventOps.GRANT_CREDIT, user),
+      this.projectsQueue.add(ProjectsQueueOps.CREATE_DEFAULT, user),
+      this.creditQueue.add(CreditsQueueOps.MAKE_VARIANCE, user),
     ]);
 
     return user;

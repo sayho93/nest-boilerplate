@@ -1,6 +1,5 @@
 import { BullModule } from '@nestjs/bullmq';
 import { DynamicModule, Module, ModuleMetadata } from '@nestjs/common';
-import { UserCreatedProcessor } from './processors/user-created.processor';
 import { QueueBoardModuleOptions } from './queue.interface';
 import { Env } from '../configs/configs.interface';
 import { ConfigsService } from '../configs/configs.service';
@@ -35,17 +34,16 @@ export class QueueModule {
         }),
         ...imports,
       ],
-      providers: [UserCreatedProcessor],
       exports: [BullModule],
     };
   }
 
   public static register(options: QueueBoardModuleOptions): DynamicModule {
-    const bullModules = options.queues.map((name) => BullModule.registerQueue({ name: name.toString() }));
+    const bullModules = options.queues.map((name) => BullModule.registerQueue({ name }));
 
     const flowProducers = (options.flows || []).map((flow) =>
       BullModule.registerFlowProducer({
-        name: flow.toString(),
+        name: flow,
       }),
     );
 

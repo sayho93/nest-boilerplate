@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, Relation } from 'typeorm';
 import { BaseUuidActorEntity } from '../../database/base.entity';
-import { User } from '../../users/user.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('credit')
 export class Credit extends BaseUuidActorEntity {

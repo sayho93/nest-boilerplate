@@ -1,8 +1,8 @@
 import { DataSource } from 'typeorm';
 import { Seeder, SeederFactoryManager } from 'typeorm-extension';
-import { Auth } from '../src/modules/auth/auth.entity';
 import { AuthType } from '../src/modules/auth/auth.interface';
-import { User } from '../src/modules/users/user.entity';
+import { Auth } from '../src/modules/auth/entities/auth.entity';
+import { User } from '../src/modules/users/entities/user.entity';
 import { UserRole } from '../src/modules/users/users.interface';
 
 export default class UserWithAuthSeeder implements Seeder {

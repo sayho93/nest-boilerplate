@@ -3,9 +3,9 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { Strategy } from 'passport-local';
 import { LoggerService } from '../../logger/logger.service';
-import { Auth } from '../auth.entity';
 import { AuthType } from '../auth.interface';
 import { AuthService } from '../auth.service';
+import { Auth } from '../entities/auth.entity';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {

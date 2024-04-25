@@ -1,8 +1,8 @@
 import { Column, Entity, Index, OneToMany } from 'typeorm';
-import { UserRole } from './users.interface';
-import { Auth } from '../auth/auth.entity';
-import { Credit } from '../credits/entities/credit.entity';
-import { BaseUuidEntity } from '../database/base.entity';
+import { Auth } from '../../auth/entities/auth.entity';
+import { Credit } from '../../credits/entities/credit.entity';
+import { BaseUuidEntity } from '../../database/base.entity';
+import { UserRole } from '../users.interface';
 
 @Entity('user')
 export class User extends BaseUuidEntity {

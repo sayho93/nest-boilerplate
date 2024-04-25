@@ -1,9 +1,9 @@
 import { Exclude } from 'class-transformer';
 import { Column, Entity, Index, ManyToOne } from 'typeorm';
-import { AuthType } from './auth.interface';
-import { createHash, isSameHash } from './auth.util';
-import { BaseUuidEntity } from '../database/base.entity';
-import { User } from '../users/user.entity';
+import { BaseUuidEntity } from '../../database/base.entity';
+import { User } from '../../users/entities/user.entity';
+import { AuthType } from '../auth.interface';
+import { createHash, isSameHash } from '../auth.util';
 
 @Entity('auth')
 // @Index(['deletedAt', 'email'], { unique: true, nullFiltered: true })

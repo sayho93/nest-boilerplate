@@ -1,3 +1,4 @@
+import { QueueEventsHost } from '@nestjs/bullmq';
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { Queue } from 'bullmq';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -13,7 +14,7 @@ import { Transactional } from '../database/transactional.decorator';
 import { LoggerService } from '../logger/logger.service';
 import { Project } from '../projects/entities/project.entity';
 import { ProjectsQueueOps } from '../projects/projects.constant';
-import { InjectCreditsQueue, InjectProjectsQueue } from '../queue/queue.decorator';
+import { InjectCreditsQueue, InjectProjectQueueEventsListener, InjectProjectsQueue } from '../queue/queue.decorator';
 
 @Injectable()
 export class UsersService {
@@ -21,6 +22,7 @@ export class UsersService {
     private readonly repository: UsersRepository,
     @InjectProjectsQueue() private readonly projectsQueue: Queue<User, Project>,
     @InjectCreditsQueue() private readonly creditQueue: Queue<User, Credit>,
+    @InjectProjectQueueEventsListener() private readonly projectsQueueEventListener: QueueEventsHost,
     @Inject(GENERAL_CACHE) private readonly cacheService: CacheService,
     private readonly loggerService: LoggerService,
   ) {}
@@ -29,10 +31,13 @@ export class UsersService {
   public async create(createUserDto: CreateUserDto) {
     const user = await this.repository.create(createUserDto);
 
-    await Promise.all([
+    const [projectJob] = await Promise.all([
       this.projectsQueue.add(ProjectsQueueOps.CREATE_DEFAULT, user),
       this.creditQueue.add(CreditsQueueOps.MAKE_VARIANCE, user),
     ]);
+
+    const res = await projectJob.waitUntilFinished(this.projectsQueueEventListener.queueEvents);
+    console.log(res);
 
     return user;
   }

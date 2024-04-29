@@ -1,5 +1,6 @@
-import { BullModule } from '@nestjs/bullmq';
+import { BullModule, OnQueueEvent, QueueEventsHost, QueueEventsListener } from '@nestjs/bullmq';
 import { DynamicModule, Module, ModuleMetadata } from '@nestjs/common';
+import { QueueEventListenerTokenPrefix } from './queue.constant';
 import { QueueBoardModuleOptions } from './queue.interface';
 import { Env } from '../configs/configs.interface';
 import { ConfigsService } from '../configs/configs.service';
@@ -25,8 +26,8 @@ export class QueueModule {
                 db: redisConfig.queueDb,
               },
               defaultJobOptions: {
-                removeOnComplete: 1000,
-                removeOnFail: 5000,
+                removeOnComplete: true,
+                removeOnFail: true,
                 attempts: 3,
               },
             };
@@ -47,10 +48,34 @@ export class QueueModule {
       }),
     );
 
+    const queueEventListeners = options.queues.reduce<Required<Pick<ModuleMetadata, 'providers' | 'exports'>>>(
+      (acc, name) => {
+        const token = `${QueueEventListenerTokenPrefix}-${name}`;
+
+        acc.providers.push({
+          provide: token,
+          useFactory: () => {
+            @QueueEventsListener(name)
+            class EventsListener extends QueueEventsHost {
+              @OnQueueEvent('completed')
+              onCompleted() {}
+            }
+
+            return new EventsListener();
+          },
+        });
+        acc.exports.push(token);
+
+        return acc;
+      },
+      { providers: [], exports: [] },
+    );
+
     return {
       module: QueueModule,
       imports: [...bullModules, ...flowProducers],
-      exports: [...bullModules, ...flowProducers],
+      providers: [...queueEventListeners.providers],
+      exports: [...bullModules, ...flowProducers, ...queueEventListeners.exports],
     };
   }
 }

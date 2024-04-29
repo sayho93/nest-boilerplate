@@ -1,6 +1,8 @@
 import { Processor } from '@nestjs/bullmq';
 import { BadRequestException } from '@nestjs/common';
+import { sleep } from '@nestjs/terminus/dist/utils';
 import { Job } from 'bullmq';
+import { v4 } from 'uuid';
 import { CREDITS_QUEUE, CreditsQueueOps } from './credits.constant';
 import { CreditsService } from './credits.service';
 import { Credit } from './entities/credit.entity';
@@ -23,6 +25,10 @@ export class CreditsQueueProcessor extends WorkerHostProcessor {
     switch (job.name) {
       case CreditsQueueOps.MAKE_VARIANCE:
         return this.creditsService.create({});
+
+      case CreditsQueueOps.SOME_LONG_TASK:
+        await sleep(5000);
+        return v4();
     }
 
     throw new BadRequestException(`Unknown job name: ${job.name}`);

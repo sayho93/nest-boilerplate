@@ -43,7 +43,8 @@ import { AsyncLocalStorageMiddleware } from '../middlewares/async-local-storage.
     { provide: APP_INTERCEPTOR, useClass: RequestIdInterceptor },
     { provide: APP_INTERCEPTOR, useClass: RequestLogInterceptor },
     { provide: APP_INTERCEPTOR, useClass: ClassSerializerInterceptor },
-    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_GUARD, useExisting: JwtAuthGuard },
+    JwtAuthGuard,
     { provide: APP_FILTER, useClass: GlobalExceptionsFilter },
   ],
 })

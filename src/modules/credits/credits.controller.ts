@@ -17,9 +17,9 @@ export class CreditsController {
     return this.creditsService.findAll();
   }
 
-  @Get(':id')
+  @Get('/:id')
   findOne(@Param('id') id: string) {
-    return this.creditsService.findOne(+id);
+    return this.creditsService.findOne(id);
   }
 
   @Patch(':id')

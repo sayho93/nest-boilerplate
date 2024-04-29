@@ -1,10 +1,11 @@
-import { Controller, Get, Version } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
+import { BypassAuth } from './auth/decorators/auth.decorator';
 
 @Controller('/')
 export class AppController {
   public constructor() {}
 
-  @Version('1')
+  @BypassAuth()
   @Get('/ping')
   public ping() {
     return 'pong';

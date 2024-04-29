@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource } from 'typeorm';
-import { Auth } from './auth.entity';
+import { Auth } from './entities/auth.entity';
 import { BaseRepository } from '../database/base.repository';
 import { LoggerService } from '../logger/logger.service';
 

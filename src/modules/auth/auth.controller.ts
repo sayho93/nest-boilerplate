@@ -1,10 +1,13 @@
 import {
+  Body,
   Controller,
   Delete,
   Get,
   HttpCode,
   HttpRedirectResponse,
   HttpStatus,
+  Param,
+  Patch,
   Post,
   Redirect,
   Res,
@@ -12,11 +15,12 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { Auth } from './auth.entity';
-import { AuthType } from './auth.interface';
+import { AuthType, JwtPayload } from './auth.interface';
 import { AuthService } from './auth.service';
 import { BypassAuth } from './decorators/auth.decorator';
-import { CurrentAuth } from './decorators/current-auth.decorator';
+import { CurrentAuth, CurrentUser } from './decorators/current-auth.decorator';
+import { SignUpDto } from './dto/sign-up.dto';
+import { Auth } from './entities/auth.entity';
 import { GoogleAuthGuard } from './guards/google-auth.guard';
 import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
@@ -36,9 +40,9 @@ export class AuthController {
   }
 
   @BypassAuth()
-  @Post('/signUp')
-  public async signUp() {
-    throw new ServiceUnavailableException('Not implemented');
+  @Post('/')
+  public async signUp(@Body() signUpDto: SignUpDto) {
+    return this.authService.signUp(signUpDto);
   }
 
   @BypassAuth()
@@ -74,6 +78,16 @@ export class AuthController {
   @Get(`/refresh`)
   public async refresh(@CurrentAuth() auth: Auth) {
     return this.authService.signIn(auth);
+  }
+
+  @Post(`/${AuthType.EMAIL}/verification`)
+  public async resendEmailVerification(@CurrentUser() payload: JwtPayload) {
+    return this.authService.resendEmailVerification(payload);
+  }
+
+  @Patch(`/${AuthType.EMAIL}/verification/:code`)
+  public async verifyEmailAuth(@CurrentUser() payload: JwtPayload, @Param('code') code: string) {
+    return this.authService.verifyEmail(payload, code);
   }
 
   @Delete('/signOut')

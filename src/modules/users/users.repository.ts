@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { DataSource, Like } from 'typeorm';
 import { FindManyOptions } from 'typeorm/find-options/FindManyOptions';
 import { FindUsersDto } from './dto/find-users.dto';
-import { User } from './user.entity';
+import { User } from './entities/user.entity';
 import { BaseRepository } from '../database/base.repository';
 import { LoggerService } from '../logger/logger.service';
 

@@ -1,7 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
-import { Auth } from '../auth.entity';
 import { JwtPayload } from '../auth.interface';
+import { Auth } from '../entities/auth.entity';
 
 export const getCurrentUserByContext = (context: ExecutionContext): JwtPayload | undefined => {
   switch (context.getType()) {

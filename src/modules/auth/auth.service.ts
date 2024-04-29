@@ -1,15 +1,29 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Auth } from './auth.entity';
+import { ISendMailOptions } from '@nestjs-modules/mailer';
+import { Queue } from 'bullmq';
+import { v4 } from 'uuid';
+import { EMAIL_VERIFICATION_TIMEOUT } from './auth.constant';
 import { AuthType, JwtPayload } from './auth.interface';
 import { AuthRepository } from './auth.repository';
-import { createHash } from './auth.util';
+import { createHash, isSameHash } from './auth.util';
 import { SignInDto } from './dto/sign-in.dto';
+import { SignUpDto } from './dto/sign-up.dto';
+import { Auth } from './entities/auth.entity';
 import { CashKeys, GENERAL_CACHE } from '../cache/cache.constant';
 import { CacheService } from '../cache/cache.service';
 import { ConfigsService } from '../configs/configs.service';
 import { Transactional } from '../database/transactional.decorator';
-import { User } from '../users/user.entity';
+import { MailQueueOps } from '../mail/mail.constant';
+import { InjectMailQueue } from '../queue/queue.decorator';
+import { User } from '../users/entities/user.entity';
 import { UserRole } from '../users/users.interface';
 import { UsersService } from '../users/users.service';
 
@@ -21,6 +35,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     @Inject(GENERAL_CACHE) private readonly cacheService: CacheService,
+    @InjectMailQueue() private readonly mailQueue: Queue<ISendMailOptions, void>,
   ) {}
 
   private async setTokenToCache(userId: string, token: string) {
@@ -40,6 +55,8 @@ export class AuthService {
 
   @Transactional()
   public async signIn(auth: Auth) {
+    if (!auth.user) throw new InternalServerErrorException('invalid data format');
+
     const payload: JwtPayload = {
       authId: auth.id,
       userId: auth.user.id,
@@ -61,9 +78,33 @@ export class AuthService {
   }
 
   @Transactional()
-  private async validateEmail(signInDto: SignInDto) {
+  public async signUp(signUpDto: SignUpDto) {
+    const { email, password, phone, lastName, firstName, alias } = signUpDto;
+
     const auth = await this.repository.findOneByCondition({
-      where: { email: signInDto.email },
+      where: { email, type: AuthType.EMAIL },
+      relations: { user: true },
+    });
+
+    if (auth) {
+      throw new BadRequestException('already exists');
+    }
+
+    return await this.createAuth({
+      type: AuthType.EMAIL,
+      email,
+      password,
+      phone,
+      firstName,
+      lastName,
+    });
+  }
+
+  @Transactional()
+  private async validateEmail(signInDto: SignInDto) {
+    const { email, type } = signInDto;
+    const auth = await this.repository.findOneByCondition({
+      where: { email, type },
       relations: { user: true },
     });
     if (!auth) throw new UnauthorizedException('authentication not found');
@@ -76,43 +117,83 @@ export class AuthService {
   }
 
   @Transactional()
-  private async createAuth(signInDto: SignInDto) {
+  private async sendEmailVerification(auth: Auth) {
+    if (!auth.user) if (!auth.user) throw new InternalServerErrorException('invalid data format');
+
+    const verificationCode = v4();
+
+    await Promise.all([
+      this.cacheService.setEmailVerification(
+        CashKeys.EMAIL_VERIFICATION + auth.user.id,
+        { email: auth.email, code: await createHash(verificationCode) },
+        EMAIL_VERIFICATION_TIMEOUT,
+      ),
+
+      this.mailQueue.add(MailQueueOps.SEND_SINGLE, {
+        to: auth.email,
+        subject: 'verification',
+        template: 'activation_code.html',
+        context: {
+          code: verificationCode,
+          username: `${auth.user.firstName} ${auth.user.lastName}`,
+        },
+      }),
+    ]);
+  }
+
+  @Transactional()
+  private async findUserByEmailOrCreate(signInDto: SignInDto): Promise<User> {
+    const { email, firstName, lastName, phone } = signInDto;
+
     const authWithMatchingEmail = await this.repository.findOneByCondition({
-      where: { email: signInDto.email },
+      where: { email },
       order: { createdAt: -1 },
+      relations: { user: true },
     });
 
-    const { email, firstName, lastName, type, accessToken, refreshToken } = signInDto;
-    if (!firstName || !lastName || !accessToken) {
+    // 유저가 존재할 경우 즉시 반환
+    if (authWithMatchingEmail?.user) return authWithMatchingEmail.user;
+
+    if (!firstName || !lastName) {
       throw new UnauthorizedException('provided information is not enough');
     }
 
-    let user: User;
+    return this.usersService.create({
+      firstName: firstName,
+      lastName: lastName,
+      role: UserRole.GUEST,
+      phone: phone || null,
+      alias: `${firstName} ${lastName}`,
+    });
+  }
 
-    if (!authWithMatchingEmail) {
-      user = await this.usersService.create({
-        firstName: firstName,
-        lastName: lastName,
-        role: UserRole.GUEST,
-        phone: null,
-        alias: `${firstName} ${lastName}`,
-      });
+  @Transactional()
+  private async createAuth(signInDto: SignInDto) {
+    const { email, password, type, accessToken, refreshToken } = signInDto;
+
+    const auth = new Auth(type);
+    auth.email = email;
+    auth.user = await this.findUserByEmailOrCreate(signInDto);
+
+    if (type === AuthType.EMAIL) {
+      if (!password) throw new BadRequestException('password is required');
+
+      auth.isVerified = false;
+      await auth.setPassword(password);
+      await this.sendEmailVerification(auth);
     } else {
-      user = authWithMatchingEmail.user;
+      if (!accessToken) throw new UnauthorizedException('provided information is not enough');
+      auth.token = accessToken;
     }
 
-    const newAuth = new Auth(type);
-    newAuth.email = email;
-    newAuth.token = accessToken;
-    newAuth.user = user;
-
-    return await this.repository.create(newAuth);
+    return await this.repository.create(auth);
   }
 
   @Transactional()
   private async validateOAuth(signInDto: SignInDto) {
+    const { email, type } = signInDto;
     const auth = await this.repository.findOneByCondition({
-      where: { email: signInDto.email, type: signInDto.type },
+      where: { email, type },
       relations: { user: true },
     });
     if (!auth) return this.createAuth(signInDto);
@@ -146,6 +227,32 @@ export class AuthService {
   @Transactional()
   public async findOneById(id: string) {
     return this.repository.findOneByCondition({ where: { id }, relations: { user: true } });
+  }
+
+  @Transactional()
+  public async resendEmailVerification(payload: JwtPayload) {
+    const auth = await this.repository.findOneByCondition({
+      where: { user: { id: payload.userId }, type: AuthType.EMAIL },
+      relations: { user: true },
+    });
+    if (!auth) throw new NotFoundException('auth not found');
+
+    if (auth.isVerified) throw new BadRequestException('already verified');
+
+    return this.sendEmailVerification(auth);
+  }
+
+  @Transactional()
+  public async verifyEmail(payload: JwtPayload, code: string) {
+    const emailVerificationCache = await this.cacheService.getEmailVerification(
+      CashKeys.EMAIL_VERIFICATION + payload.userId,
+    );
+    if (!emailVerificationCache) throw new BadRequestException('code not found');
+
+    const isMatch = await isSameHash(code, emailVerificationCache.code);
+    if (!isMatch) throw new BadRequestException('code does not match');
+
+    return this.repository.updateOne(payload.authId, { isVerified: true });
   }
 
   @Transactional()

@@ -7,15 +7,17 @@ import { TRANSACTIONAL_KEY, TRANSACTIONAL_OPTION } from './database.constant';
 import { Propagation, TransactionalOptions } from './database.interface';
 import { TransactionalException } from '../../common/exceptions/transactional.exception';
 import { AlsService } from '../als/als.service';
-import { Auth } from '../auth/auth.entity';
+import { Auth } from '../auth/entities/auth.entity';
 import { Env } from '../configs/configs.interface';
 import { ConfigsService } from '../configs/configs.service';
-import { User } from '../users/user.entity';
+import { Credit } from '../credits/entities/credit.entity';
+import { User } from '../users/entities/user.entity';
 
 @Module({
   imports: [
     DiscoveryModule,
     TypeOrmModule.forRootAsync({
+      inject: [ConfigsService],
       useFactory: (configsService: ConfigsService) => {
         const appConfig = configsService.App;
         const mariaDBConfig = configsService.MariaDB;
@@ -31,12 +33,11 @@ import { User } from '../users/user.entity';
           synchronize: false,
           dropSchema: false,
           logging: appConfig.env === Env.Development,
-          entities: [User, Auth],
+          entities: [User, Auth, Credit],
         };
 
         return connectionInfo;
       },
-      inject: [ConfigsService],
     }),
   ],
 })

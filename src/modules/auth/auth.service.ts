@@ -109,7 +109,6 @@ export class AuthService {
     });
     if (!auth) throw new UnauthorizedException('authentication not found');
 
-    console.log(auth);
     if (!signInDto.password) throw new UnauthorizedException('password is required');
     const isMatch = await auth.compareHash(signInDto.password);
     if (!isMatch) throw new UnauthorizedException('authentication failed');

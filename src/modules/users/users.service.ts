@@ -37,7 +37,7 @@ export class UsersService {
     ]);
 
     const res = await projectJob.waitUntilFinished(this.projectsQueueEventListener.queueEvents);
-    console.log(res);
+    this.loggerService.debug(this.create.name, res);
 
     return user;
   }

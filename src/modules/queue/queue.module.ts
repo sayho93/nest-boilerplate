@@ -27,7 +27,7 @@ export class QueueModule {
               },
               defaultJobOptions: {
                 removeOnComplete: true,
-                removeOnFail: true,
+                removeOnFail: 5000,
                 attempts: 3,
               },
             };

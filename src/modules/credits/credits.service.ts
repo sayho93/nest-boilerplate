@@ -34,7 +34,7 @@ export class CreditsService {
   public async findOne(id: string) {
     const job = await this.creditsQueue.getJob(id);
 
-    if (job) {
+    if (job && !(await job.isFailed())) {
       return job.waitUntilFinished(this.creditsQueueEventListener.queueEvents);
     }
 

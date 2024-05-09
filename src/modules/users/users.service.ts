@@ -7,6 +7,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
 import { GENERAL_CACHE } from '../cache/cache.constant';
+import { Cache } from '../cache/cache.decorator';
 import { CacheService } from '../cache/cache.service';
 import { CreditsQueueOps } from '../credits/credits.constant';
 import { Credit } from '../credits/entities/credit.entity';
@@ -43,6 +44,7 @@ export class UsersService {
   }
 
   @Transactional()
+  @Cache({})
   public async findMany(findUserDto: FindUsersDto) {
     return this.repository.findMany(findUserDto);
   }

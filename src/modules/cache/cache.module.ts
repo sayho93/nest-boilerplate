@@ -1,6 +1,7 @@
 import { CacheModule as NestCacheModule } from '@nestjs/cache-manager';
 import { DynamicModule, Global, Module } from '@nestjs/common';
 import { redisStore } from 'cache-manager-ioredis-yet';
+import { CacheDecoratorService } from './cache-decorator.service';
 import { CacheService } from './cache.service';
 import { Env } from '../configs/configs.interface';
 import { ConfigsModule } from '../configs/configs.module';
@@ -39,7 +40,7 @@ export class CacheModule {
           },
         }),
       ],
-      providers: [{ provide: options.providerToken, useClass: CacheService }],
+      providers: [{ provide: options.providerToken, useClass: CacheService }, CacheDecoratorService],
       exports: [options.providerToken],
     };
   }

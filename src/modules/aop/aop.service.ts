@@ -20,16 +20,12 @@ export class AopService implements OnModuleInit {
     return providers
       .filter((wrapper) => wrapper.isDependencyTreeStatic())
       .filter(({ instance, metatype }) => {
-        if (!instance || !metatype) {
-          return false;
-        }
+        if (!instance || !metatype) return false;
+
         const aspect =
           reflector.get<string>(ASPECT, metatype) ||
           reflector.get<string>(ASPECT, Object.getPrototypeOf(instance).constructor);
-
-        if (!aspect) {
-          return false;
-        }
+        if (!aspect) return false;
 
         return typeof instance.wrap === 'function';
       })
@@ -54,9 +50,7 @@ export class AopService implements OnModuleInit {
     const wrappedFn = function (this: object, ...args: unknown[]) {
       const cache = self.wrappedMethodCache.get(this) || new WeakMap();
       const cached = cache.get(originalFn);
-      if (cached) {
-        return cached.apply(this, args);
-      }
+      if (cached) return cached.apply(this, args);
 
       const wrappedMethod = lazyDecorator.wrap({
         instance: this,
@@ -78,14 +72,9 @@ export class AopService implements OnModuleInit {
       ? instanceWrapper.instance
       : instanceWrapper.metatype.prototype;
 
-    // Use scanFromPrototype for support nestjs 8
-    const propertyKeys = this.metadataScanner.scanFromPrototype(
-      target,
-      instanceWrapper.isDependencyTreeStatic() ? Object.getPrototypeOf(target) : target,
-      (name) => name,
-    );
-
+    const propertyKeys = this.metadataScanner.getAllMethodNames(Object.getPrototypeOf(target));
     const metadataKey = this.reflector.get(ASPECT, lazyDecorator.constructor);
+
     // instance에 method names 를 순회하면서 lazyDecorator.wrap을 적용함
     for (const propertyKey of propertyKeys) {
       // the target method is must be object or function
@@ -96,9 +85,7 @@ export class AopService implements OnModuleInit {
       }
 
       const metadataList: AopMetadata[] = this.reflector.get<AopMetadata[]>(metadataKey, targetProperty);
-      if (!metadataList) {
-        continue;
-      }
+      if (!metadataList) continue;
 
       for (const aopMetadata of metadataList) {
         this.wrapMethod({ lazyDecorator, aopMetadata, methodName: propertyKey, target });
@@ -111,9 +98,7 @@ export class AopService implements OnModuleInit {
     const providers = this.discoveryService.getProviders();
 
     const lazyDecorators = this.lookupLazyDecorators(providers);
-    if (lazyDecorators.length === 0) {
-      return;
-    }
+    if (!lazyDecorators.length) return;
 
     const instanceWrappers = providers
       .concat(controllers)

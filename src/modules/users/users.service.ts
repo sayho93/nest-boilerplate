@@ -7,14 +7,16 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { UsersRepository } from './users.repository';
 import { GENERAL_CACHE } from '../cache/cache.constant';
+import { Cache } from '../cache/cache.decorator';
 import { CacheService } from '../cache/cache.service';
 import { CreditsQueueOps } from '../credits/credits.constant';
 import { Credit } from '../credits/entities/credit.entity';
-import { Transactional } from '../database/transactional.decorator';
 import { LoggerService } from '../logger/logger.service';
 import { Project } from '../projects/entities/project.entity';
 import { ProjectsQueueOps } from '../projects/projects.constant';
 import { InjectCreditsQueue, InjectProjectQueueEventsListener, InjectProjectsQueue } from '../queue/queue.decorator';
+import { Transactional } from '../transaction/transaciton.decorator';
+import { Propagation } from '../transaction/transaction.interface';
 
 @Injectable()
 export class UsersService {
@@ -42,15 +44,44 @@ export class UsersService {
     return user;
   }
 
+  @Cache({})
   @Transactional()
   public async findMany(findUserDto: FindUsersDto) {
-    return this.repository.findMany(findUserDto);
+    const result = await this.repository.findMany(findUserDto);
+
+    // try {
+    //   const test = await this.findOneById('856be21d-81b7-476c-aff9-b32a02aa8d58');
+    //   console.log(test);
+    // } catch (err) {}
+    //
+    // const test2 = await this.findOneById2('856be21d-81b7-476c-aff9-b32a02aa8d58');
+    // console.log(test2);
+
+    return result;
   }
 
-  @Transactional()
+  @Cache({})
+  @Transactional({ propagation: Propagation.NESTED })
   public async findOneById(id: string) {
     const user = await this.repository.findOneById(id);
     if (!user) throw new NotFoundException('user not found');
+
+    if (Math.random() < 1) {
+      // throw new Error('::');
+    }
+
+    return user;
+  }
+
+  @Cache({})
+  @Transactional({ propagation: Propagation.REQUIRES_NEW })
+  public async findOneById2(id: string) {
+    const user = await this.repository.findOneById(id);
+    if (!user) throw new NotFoundException('user not found');
+
+    if (Math.random() < 1) {
+      throw new Error('::');
+    }
 
     return user;
   }

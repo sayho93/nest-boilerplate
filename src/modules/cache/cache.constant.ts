@@ -6,3 +6,5 @@ export const CashKeys = {
   TOKEN: 'tokens/',
   EMAIL_VERIFICATION: 'emailVerification/',
 };
+
+export const CACHE_DECORATOR = Symbol('CacheDecorator');

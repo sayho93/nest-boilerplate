@@ -17,7 +17,14 @@ export class UsersController {
 
   @Get()
   public async findAll(@CurrentAuth() payload: JwtPayload, @Query() findUserDto: FindUsersDto) {
-    return this.usersService.findMany(findUserDto);
+    const result = await this.usersService.findMany(findUserDto);
+    try {
+      const test2 = await this.usersService.findOneById('856be21d-81b7-476c-aff9-b32a02aa8d58');
+      console.log(test2);
+    } catch (err) {
+      console.log(err);
+    }
+    return result;
   }
 
   @Get(':id')

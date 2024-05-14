@@ -5,9 +5,9 @@ import { CreditsQueueOps } from './credits.constant';
 import { CreditsRepository } from './credits.repository';
 import { CreateCreditDto } from './dto/create-credit.dto';
 import { UpdateCreditDto } from './dto/update-credit.dto';
-import { Transactional } from '../database/transactional.decorator';
 import { LoggerService } from '../logger/logger.service';
 import { InjectCreditsQueue, InjectCreditsQueueEventsListener } from '../queue/queue.decorator';
+import { Transactional } from '../transaction/transaciton.decorator';
 import { User } from '../users/entities/user.entity';
 import { UsersService } from '../users/users.service';
 

@@ -16,6 +16,7 @@ import { LoggerModule } from './logger/logger.module';
 import { MailModule } from './mail/mail.module';
 import { ProjectsModule } from './projects/projects.module';
 import { QueueModule } from './queue/queue.module';
+import { TransactionModule } from './transaction/transaction.module';
 import { UsersModule } from './users/users.module';
 import { GlobalExceptionsFilter } from '../filters/global-exceptions.filter';
 import { RequestIdInterceptor } from '../interceptors/request-id.interceptor';
@@ -31,6 +32,7 @@ import { AsyncLocalStorageMiddleware } from '../middlewares/async-local-storage.
     EventsModule,
     AopModule,
     CacheModule.registerAsync({ db: 0, providerToken: GENERAL_CACHE }),
+    TransactionModule,
     QueueModule.forRoot([]),
     JwtModule,
     MailModule,

@@ -1,6 +1,5 @@
 import { applyDecorators } from '@nestjs/common';
 import { AopMetadata } from './aop.interface';
-import { TRANSACTIONAL_KEY } from '../database/database.constant';
 
 export const AddMetadata = <K extends string | symbol = string, V = any>(
   metadataKey: K,
@@ -11,20 +10,13 @@ export const AddMetadata = <K extends string | symbol = string, V = any>(
     __: string | symbol,
     descriptor: PropertyDescriptor,
   ): TypedPropertyDescriptor<any> => {
-    console.log(':::::::::::::::::::::::::::::::::::::::::');
-    console.log(Reflect.getMetadata(metadataKey, descriptor.value));
-    console.log(Reflect.getMetadata(TRANSACTIONAL_KEY, descriptor.value));
     if (!Reflect.hasMetadata(metadataKey, descriptor.value)) {
       Reflect.defineMetadata(metadataKey, [metadataValue], descriptor.value);
 
-      console.log('------');
       return descriptor;
     }
 
     Reflect.getMetadata(metadataKey, descriptor.value).push(metadataValue);
-
-    console.log(Reflect.getMetadata(metadataKey, descriptor.value));
-    console.log(Reflect.getMetadata(TRANSACTIONAL_KEY, descriptor.value));
 
     return descriptor;
   };

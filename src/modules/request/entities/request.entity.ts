@@ -3,11 +3,8 @@ import { BaseUuidActorEntity } from '../../database/base.entity';
 import { RequestType } from '../request.interface';
 
 @Entity('request')
-@TableInheritance({ column: { type: 'varchar', name: 'type' } })
+@TableInheritance({ column: { type: 'enum', name: 'type', enum: RequestType } })
 export class Request extends BaseUuidActorEntity {
-  @Column({ name: 'type', type: 'varchar', length: 64 })
-  public type: RequestType;
-
   @Column({ name: 'additionalData1', type: 'varchar', length: 255 })
   public additionalData1: string;
 
@@ -20,18 +17,24 @@ export class Request extends BaseUuidActorEntity {
 
 @ChildEntity()
 export class RequestTypeA extends Request {
-  @Column({ name: 'type', type: 'varchar', length: 255 })
+  type: typeof RequestType.TypeA;
+
+  @Column({ name: 'specificPropertyA', type: 'varchar', length: 255 })
   specificPropertyA: string;
 }
 
 @ChildEntity()
 export class RequestTypeB extends Request {
-  @Column({ name: 'type', type: 'varchar', length: 255 })
+  type: typeof RequestType.TypeB;
+
+  @Column({ name: 'specificPropertyB', type: 'varchar', length: 255 })
   specificPropertyB: string;
 }
 
 @ChildEntity()
 export class RequestTypeC extends Request {
-  @Column({ name: 'type', type: 'varchar', length: 255 })
+  type: typeof RequestType.TypeC;
+
+  @Column({ name: 'specificPropertyC', type: 'varchar', length: 255 })
   specificPropertyC: string;
 }

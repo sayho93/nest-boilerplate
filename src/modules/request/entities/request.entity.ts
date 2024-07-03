@@ -1,5 +1,6 @@
-import { ChildEntity, Column, Entity, TableInheritance } from 'typeorm';
+import { ChildEntity, Column, Entity, ManyToOne, TableInheritance } from 'typeorm';
 import { BaseUuidActorEntity } from '../../database/base.entity';
+import { User } from '../../users/entities/user.entity';
 import { RequestType } from '../request.interface';
 
 @Entity('request')
@@ -15,26 +16,29 @@ export class Request extends BaseUuidActorEntity {
   public additionalData3: string;
 }
 
-@ChildEntity()
+@ChildEntity(RequestType.TypeA)
 export class RequestTypeA extends Request {
   type: typeof RequestType.TypeA;
 
   @Column({ name: 'specificPropertyA', type: 'varchar', length: 255 })
-  specificPropertyA: string;
+  public specificPropertyA: string;
+
+  @ManyToOne(() => User)
+  public user: User;
 }
 
-@ChildEntity()
+@ChildEntity(RequestType.TypeB)
 export class RequestTypeB extends Request {
-  type: typeof RequestType.TypeB;
+  public type: typeof RequestType.TypeB;
 
   @Column({ name: 'specificPropertyB', type: 'varchar', length: 255 })
-  specificPropertyB: string;
+  public specificPropertyB: string;
 }
 
-@ChildEntity()
+@ChildEntity(RequestType.TypeC)
 export class RequestTypeC extends Request {
-  type: typeof RequestType.TypeC;
+  public type: typeof RequestType.TypeC;
 
   @Column({ name: 'specificPropertyC', type: 'varchar', length: 255 })
-  specificPropertyC: string;
+  public specificPropertyC: string;
 }

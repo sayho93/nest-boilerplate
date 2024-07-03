@@ -1,5 +1,7 @@
+import { HttpModule } from '@nestjs/axios';
 import { ClassSerializerInterceptor, MiddlewareConsumer, Module, NestModule, ValidationPipe } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { TerminusModule } from '@nestjs/terminus';
 import { AlsModule } from './als/als.module';
 import { AopModule } from './aop/aop.module';
 import { AppController } from './app.controller';
@@ -35,6 +37,8 @@ import { AsyncLocalStorageMiddleware } from '../middlewares/async-local-storage.
     TransactionModule,
     QueueModule.forRoot([]),
     JwtModule,
+    TerminusModule,
+    HttpModule,
     MailModule,
     UsersModule,
     AuthModule,

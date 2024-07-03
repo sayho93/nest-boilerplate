@@ -9,12 +9,11 @@ import { ConfigsService } from '../configs/configs.service';
 export class QueueModule {
   public static forRoot(imports: Required<ModuleMetadata>['imports']): DynamicModule {
     return {
-      global: true,
       module: QueueModule,
       imports: [
         BullModule.forRootAsync({
           inject: [ConfigsService],
-          useFactory: (configsService: ConfigsService) => {
+          useFactory: async (configsService: ConfigsService) => {
             const appConfig = configsService.App;
             const redisConfig = configsService.Redis;
 
@@ -24,6 +23,7 @@ export class QueueModule {
                 port: redisConfig.port,
                 ...(appConfig.env === Env.Production && { password: redisConfig.password }),
                 db: redisConfig.queueDb,
+                enableOfflineQueue: false,
               },
               defaultJobOptions: {
                 removeOnComplete: true,
@@ -40,10 +40,10 @@ export class QueueModule {
   }
 
   public static register(options: QueueBoardModuleOptions): DynamicModule {
-    const bullModules = options.queues.map((name) => BullModule.registerQueue({ name }));
+    const bullModules = options.queues.map((name) => BullModule.registerQueueAsync({ name }));
 
     const flowProducers = (options.flows || []).map((flow) =>
-      BullModule.registerFlowProducer({
+      BullModule.registerFlowProducerAsync({
         name: flow,
       }),
     );

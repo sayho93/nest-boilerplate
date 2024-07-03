@@ -33,14 +33,21 @@ export class CreditsService {
   @Transactional()
   public async findOne(id: string) {
     const job = await this.creditsQueue.getJob(id);
+    console.log(job);
 
     if (job && !(await job.isFailed())) {
+      this.loggerService.debug(this.findOne.name, 'existing job found!');
       return job.waitUntilFinished(this.creditsQueueEventListener.queueEvents);
     }
 
     const user = await this.usersService.findOneById('04df85b1-95c7-4b68-b500-070c6a1f74fb');
+    user.id = id;
+
+    const client = await this.creditsQueue.client;
+    this.loggerService.warn(this.findOne.name, client.status);
 
     const newJob = await this.creditsQueue.add(CreditsQueueOps.SOME_LONG_TASK, user, { jobId: id });
+
     return newJob.waitUntilFinished(this.creditsQueueEventListener.queueEvents);
   }
 

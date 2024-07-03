@@ -11,7 +11,7 @@ export abstract class WorkerHostProcessor extends WorkerHost {
     const completionTime = finishedOn ? new Date(finishedOn).toISOString() : '';
     this.loggerService.debug(
       this.onCompleted.name,
-      `Job id: ${id}, name: ${name} completed in queue ${queueName} on ${completionTime}. Result: ${returnvalue}`,
+      `Job id: ${id}, name: ${name} completed in queue ${queueName} on ${completionTime}. Result: ${JSON.stringify(returnvalue)}`,
     );
   }
 

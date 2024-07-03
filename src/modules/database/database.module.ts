@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { DiscoveryModule } from '@nestjs/core';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Auth } from '../auth/entities/auth.entity';
-import { Env } from '../configs/configs.interface';
 import { ConfigsService } from '../configs/configs.service';
 import { Credit } from '../credits/entities/credit.entity';
 import { User } from '../users/entities/user.entity';
@@ -26,7 +25,7 @@ import { User } from '../users/entities/user.entity';
           autoLoadEntities: false,
           synchronize: false,
           dropSchema: false,
-          logging: appConfig.env === Env.Development,
+          // logging: appConfig.env === Env.Development,
           entities: [User, Auth, Credit],
         };
 

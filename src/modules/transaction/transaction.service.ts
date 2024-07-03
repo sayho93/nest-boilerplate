@@ -50,8 +50,6 @@ export class TransactionService implements LazyDecorator<any, TransactionalOptio
 
       const runWithNewTransaction = async () => {
         return await runInNewHookContext(async () => {
-          console.log('entityManager', alsService.entityManager);
-
           if (!alsService.entityManager) {
             if (isolationLevel) return dataSource.transaction(isolationLevel, transactionCallback);
             return dataSource.transaction(transactionCallback);

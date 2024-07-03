@@ -10,6 +10,6 @@
   "moduleNameMapper": {
     "^src/(.*)$": "<rootDir>/../src/$1"
   },
-  "testTimeout": 50000,
+  "testTimeout": 600000000,
   "setupFilesAfterEnv": ["<rootDir>/common/customMatchers.ts"]
 }

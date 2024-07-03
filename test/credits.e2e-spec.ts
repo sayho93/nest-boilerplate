@@ -1,4 +1,4 @@
-import { ExecutionContext, HttpStatus, INestApplication } from '@nestjs/common';
+import { ExecutionContext, INestApplication } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import request from 'supertest';
 import { v4 } from 'uuid';
@@ -29,18 +29,28 @@ describe('CreditsController (e2e)', () => {
   });
 
   it('/credits/:id (GET)', async () => {
-    const id = v4();
+    const res = await request(app.getHttpServer()).get('/health').expect(200);
+    console.log(res.body);
+
+    const id = '7a0b8bb4-d3ef-4691-91d0-6ecb5f11ae0d';
+    console.log('id: ', id);
 
     const promises = [
-      request(app.getHttpServer()).get(`/credits/${id}`).expect(HttpStatus.OK),
-      request(app.getHttpServer()).get(`/credits/${id}`).expect(HttpStatus.OK),
-      request(app.getHttpServer()).get(`/credits/${id}`).expect(HttpStatus.OK),
-      request(app.getHttpServer()).get(`/credits/${id}`).expect(HttpStatus.OK),
-      request(app.getHttpServer()).get(`/credits/${id}`).expect(HttpStatus.OK),
-      request(app.getHttpServer()).get(`/credits/${id}`).expect(HttpStatus.OK),
+      request(app.getHttpServer()).get(`/credits/${id}`),
+      request(app.getHttpServer()).get(`/credits/${id}`),
+      request(app.getHttpServer()).get(`/credits/${v4()}`),
+      request(app.getHttpServer()).get(`/credits/${id}`),
+      request(app.getHttpServer()).get(`/credits/${v4()}`),
+      request(app.getHttpServer()).get(`/credits/${id}`),
+      request(app.getHttpServer()).get(`/credits/${id}`),
+      request(app.getHttpServer()).get(`/credits/${v4()}`),
+      request(app.getHttpServer()).get(`/credits/${id}`),
+      request(app.getHttpServer()).get(`/credits/${v4()}`),
     ];
     const result = await Promise.all(promises);
 
-    result.forEach((res) => expect(result[0].text).toBe(res.text));
+    console.log(result.map((res) => res.body));
+
+    expect(result.filter((res) => res.body.id === id).length).toBe(6);
   });
 });

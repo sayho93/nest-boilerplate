@@ -18,6 +18,7 @@ import { LoggerModule } from './logger/logger.module';
 import { MailModule } from './mail/mail.module';
 import { ProjectsModule } from './projects/projects.module';
 import { QueueModule } from './queue/queue.module';
+import { RequestModule } from './request/request.module';
 import { TransactionModule } from './transaction/transaction.module';
 import { UsersModule } from './users/users.module';
 import { GlobalExceptionsFilter } from '../filters/global-exceptions.filter';
@@ -44,6 +45,7 @@ import { AsyncLocalStorageMiddleware } from '../middlewares/async-local-storage.
     AuthModule,
     ProjectsModule,
     CreditsModule,
+    RequestModule,
   ],
   controllers: [AppController],
   providers: [

@@ -6,6 +6,8 @@ import { RequestType } from '../request.interface';
 @Entity('request')
 @TableInheritance({ column: { type: 'enum', name: 'type', enum: RequestType } })
 export class Request extends BaseUuidActorEntity {
+  public type: RequestType;
+
   @Column({ name: 'additionalData1', type: 'varchar', length: 255 })
   public additionalData1: string;
 
@@ -18,27 +20,39 @@ export class Request extends BaseUuidActorEntity {
 
 @ChildEntity(RequestType.TypeA)
 export class RequestTypeA extends Request {
-  type: typeof RequestType.TypeA;
+  public override type: typeof RequestType.TypeA;
 
   @Column({ name: 'specificPropertyA', type: 'varchar', length: 255 })
   public specificPropertyA: string;
 
   @ManyToOne(() => User)
   public user: User;
+
+  public constructor() {
+    super();
+  }
 }
 
 @ChildEntity(RequestType.TypeB)
 export class RequestTypeB extends Request {
-  public type: typeof RequestType.TypeB;
+  public override type: typeof RequestType.TypeB;
 
   @Column({ name: 'specificPropertyB', type: 'varchar', length: 255 })
   public specificPropertyB: string;
+
+  public constructor() {
+    super();
+  }
 }
 
 @ChildEntity(RequestType.TypeC)
 export class RequestTypeC extends Request {
-  public type: typeof RequestType.TypeC;
+  public override type: typeof RequestType.TypeC;
 
   @Column({ name: 'specificPropertyC', type: 'varchar', length: 255 })
   public specificPropertyC: string;
+
+  public constructor() {
+    super();
+  }
 }

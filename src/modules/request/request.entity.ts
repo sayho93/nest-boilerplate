@@ -1,5 +1,5 @@
-import { ChildEntity, Column, Entity, ManyToOne, TableInheritance } from 'typeorm';
-import { RequestType } from './request.interface';
+import { ChildEntity, Column, Entity, ManyToOne, TableInheritance, VirtualColumn } from 'typeorm';
+import { RequestSubType, RequestType } from './request.interface';
 import { BaseUuidActorEntity } from '../database/base.entity';
 import { User } from '../users/entities/user.entity';
 
@@ -15,7 +15,17 @@ export type IRequest = RequestTypeA | RequestTypeB | RequestTypeC;
   },
 })
 export class Request extends BaseUuidActorEntity {
+  @Column({ type: 'enum', enum: RequestType, name: 'type' })
   public type: RequestType;
+
+  @Column({ type: 'enum', enum: RequestSubType, name: 'subType' })
+  public subType: RequestSubType;
+
+  @VirtualColumn({
+    type: 'string',
+    query: (alias) => `SELECT CONCAT(type, subType) FROM 'request' where id = ${alias}`,
+  })
+  public discriminationKey: string;
 
   @Column({ name: 'additionalData1', type: 'varchar', length: 255 })
   public additionalData1: string;

@@ -7,3 +7,11 @@ export const RequestType = {
 } as const;
 
 export type RequestType = Union<typeof RequestType>;
+
+export const RequestSubType = {
+  SubTypeA: 'SUBTYPE_A',
+  SubTypeB: 'SUBTYPE_B',
+  SubTypeC: 'SUBTYPE_C',
+};
+
+export type RequestSubType = Union<typeof RequestSubType>;

@@ -1,7 +1,7 @@
 services:
-  mariadb:
-    image: 'mariadb:latest'
-    container_name: 'nest-boilerplate-mariadb'
+  mysql:
+    image: 'mysql:latest'
+    container_name: 'nest-boilerplate-mysql'
     ports:
       - '3306:3306'
     environment:
@@ -38,7 +38,7 @@ services:
     networks:
       - backend
     depends_on:
-      - mariadb
+      - mysql
       - redis
 
   nginx:

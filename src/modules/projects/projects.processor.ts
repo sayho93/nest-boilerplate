@@ -22,7 +22,7 @@ export class ProjectsQueueProcessor extends WorkerHostProcessor {
 
     switch (job.name) {
       case ProjectsQueueOps.CREATE_DEFAULT:
-        return this.projectsService.create(user);
+        return this.projectsService.create();
     }
 
     throw new BadRequestException(`Unknown job name: ${job.name}`);

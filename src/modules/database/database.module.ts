@@ -4,7 +4,19 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Auth } from '../auth/entities/auth.entity';
 import { ConfigsService } from '../configs/configs.service';
 import { Credit } from '../credits/entities/credit.entity';
-import { Request, RequestTypeA, RequestTypeB, RequestTypeC } from '../request/request.entity';
+import { Project } from '../projects/entities/project.entity';
+import {
+  Request,
+  RequestTypeAA,
+  RequestTypeAB,
+  RequestTypeAC,
+  RequestTypeBA,
+  RequestTypeBB,
+  RequestTypeBC,
+  RequestTypeCA,
+  RequestTypeCB,
+  RequestTypeCC,
+} from '../request/request.entity';
 import { User } from '../users/entities/user.entity';
 
 @Module({
@@ -17,7 +29,7 @@ import { User } from '../users/entities/user.entity';
         const mariaDBConfig = configsService.MariaDB;
 
         const connectionInfo: TypeOrmModuleOptions = {
-          type: 'mariadb',
+          type: 'mysql',
           host: mariaDBConfig.host,
           port: mariaDBConfig.port,
           username: mariaDBConfig.user,
@@ -27,7 +39,22 @@ import { User } from '../users/entities/user.entity';
           synchronize: false,
           dropSchema: false,
           logging: true,
-          entities: [User, Auth, Credit, Request, RequestTypeA, RequestTypeB, RequestTypeC],
+          entities: [
+            User,
+            Auth,
+            Credit,
+            Project,
+            Request,
+            RequestTypeAA,
+            RequestTypeAB,
+            RequestTypeAC,
+            RequestTypeBA,
+            RequestTypeBB,
+            RequestTypeBC,
+            RequestTypeCA,
+            RequestTypeCB,
+            RequestTypeCC,
+          ],
         };
 
         return connectionInfo;

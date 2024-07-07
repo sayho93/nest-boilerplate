@@ -18,9 +18,10 @@ export type IRequest =
 @Entity('request')
 @TableInheritance({
   column: {
-    type: 'simple-array',
-    // enum: [...Object.values(RequestType), ...Object.values(RequestSubType)],
     name: 'type',
+    type: 'simple-array',
+    // type: 'enum',
+    // enum: [...Object.values(RequestType), ...Object.values(RequestSubType)],
     // default: [RequestType.TypeA, RequestSubType.SubTypeA],
   },
 })
